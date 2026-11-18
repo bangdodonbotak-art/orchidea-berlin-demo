@@ -1,12 +1,16 @@
 "use client";
 import { SERVICES, STAFF, T } from "../../lib/data";
 import { useLang } from "../../lib/useLang";
+import { useTheme } from "../../lib/useTheme";
 
 /* /team — full team page (v3.1, defect 6).
    Reuses lib/data.ts, same design system, DE/EN toggle, DEMO-labelled. */
 export default function TeamPage() {
   // Language persists across pages/tabs via localStorage (v3.4, useLang).
   const [lang, setLang] = useLang();
+  // Dark mode persists the same way (v3.7, useTheme) — toggle added here
+  // because the v3.6 audit found it only existed on the homepage.
+  const [dark, setDark] = useTheme();
   const t = T[lang];
   return (
     <div className="min-h-screen">
@@ -18,6 +22,7 @@ export default function TeamPage() {
           </a>
           <div className="flex items-center gap-2">
             <button className="chip !py-1.5" onClick={() => setLang(lang === "en" ? "de" : "en")} aria-label={t.switchLang}>{lang === "en" ? "DE" : "EN"}</button>
+            <button className="chip !py-1.5" onClick={() => setDark(!dark)} aria-label={t.toggleTheme}>{dark ? t.themeLight : t.themeDark}</button>
             <a href="/#booking" className="btn-primary !py-2 !px-4 text-sm">{t.book}</a>
           </div>
         </div>
@@ -28,18 +33,22 @@ export default function TeamPage() {
         <p className="muted mt-3 max-w-2xl">{t.teamSub}</p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
           {STAFF.map((s) => (
-            <article key={s.id} className="card rounded-2xl overflow-hidden lift">
+            <article key={s.id} className="card rounded-2xl overflow-hidden lift flex flex-col">
               <div className="overflow-hidden">
                 <img src={s.img} alt={s.name} className="w-full aspect-[3/4] object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
               </div>
-              <div className="p-5">
+              <div className="p-5 flex-1 flex flex-col">
                 <h2 className="font-display text-2xl font-semibold">{s.name}</h2>
                 <p className="muted text-sm">{lang === "de" ? s.roleDe : s.role}</p>
-                <p className="text-sm mt-3">
+                {/* v3.7: services line reserves 3 lines (text-sm = 20px/line)
+                    + the link is pinned with mt-auto, so "Buchen bei …" sits
+                    on the same baseline on all 4 cards even when Mia's
+                    services wrap to 3 lines and the others to 2. */}
+                <p className="text-sm mt-3 min-h-[3.75rem]">
                   {lang === "de" ? "Leistungen: " : "Services: "}
                   {s.services.map((id) => SERVICES.find((x) => x.id === id)).map((x) => (x ? (lang === "de" ? x.nameDe : x.name) : "")).join(" · ")}
                 </p>
-                <a href="/#booking" className="text-sm font-semibold accent hover:underline mt-3 inline-block">
+                <a href="/#booking" className="text-sm font-semibold accent hover:underline mt-auto pt-3 inline-block">
                   {t.bookWith} {s.name.split(" ")[0]} →
                 </a>
               </div>

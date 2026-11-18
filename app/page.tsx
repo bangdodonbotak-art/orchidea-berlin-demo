@@ -5,6 +5,7 @@ import {
   fmtEUR, type Service,
 } from "../lib/data";
 import { useLang } from "../lib/useLang";
+import { useTheme } from "../lib/useTheme";
 import ServiceCard from "../lib/ServiceCard";
 
 const DAYS = ["Fri 20 Nov", "Sat 21 Nov", "Mon 23 Nov", "Tue 24 Nov"];
@@ -72,7 +73,10 @@ function CountUp({ end, suffix = "" }: { end: number; suffix?: string }) {
 export default function Home() {
   // Language persists across pages/tabs via localStorage (v3.4, useLang).
   const [lang, setLang] = useLang();
-  const [dark, setDark] = useState(false);
+  // Dark mode persists across pages/tabs via localStorage (v3.7, useTheme —
+  // same pattern as useLang). Previously plain useState(false), so Dark
+  // reverted to light on every navigation.
+  const [dark, setDark] = useTheme();
   const [ambience, setAmbience] = useState(30); // 0 daylight — 100 evening
   const [playing, setPlaying] = useState(false);
   const playDir = useRef(1);
@@ -135,7 +139,20 @@ export default function Home() {
   const adminValue = admin.reduce((sum, a) => sum + (SERVICES.find((s) => s.id === a.service)?.from ?? 0), 0);
   useReveal();
 
-  useEffect(() => { document.documentElement.setAttribute("data-theme", dark ? "dark" : "light"); }, [dark]);
+  /* Cookie consent persists (v3.7): once accepted OR rejected, the banner
+     never shows again on any page load. Same localStorage pattern as the
+     orchidea-lang / orchidea-theme keys. */
+  const COOKIE_KEY = "orchidea-cookies";
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem(COOKIE_KEY);
+      if (v === "accepted" || v === "rejected") setCookie(v);
+    } catch { /* storage unavailable — banner shows each visit */ }
+  }, []);
+  useEffect(() => {
+    if (cookie === "unset") return;
+    try { localStorage.setItem(COOKIE_KEY, cookie); } catch { /* ignore */ }
+  }, [cookie]);
 
   /* v3.6: preselect a service chosen on /services — it stores the service
      id in localStorage ("orchidea-service") before navigating to /#booking.

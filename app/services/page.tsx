@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { CAT_LABELS, SERVICES, T, type Service } from "../../lib/data";
 import { useLang } from "../../lib/useLang";
+import { useTheme } from "../../lib/useTheme";
 import ServiceCard from "../../lib/ServiceCard";
 
 /* /services — full services & prices page (v3.1, defect 6).
@@ -17,6 +18,9 @@ import ServiceCard from "../../lib/ServiceCard";
 export default function ServicesPage() {
   // Language persists across pages/tabs via localStorage (v3.4, useLang).
   const [lang, setLang] = useLang();
+  // Dark mode persists the same way (v3.7, useTheme) — toggle added here
+  // because the v3.6 audit found it only existed on the homepage.
+  const [dark, setDark] = useTheme();
   const t = T[lang];
   const [cat, setCat] = useState<"All" | "Hair" | "Skin" | "Nails" | "Massage">("All");
   const catLabel = (c: string) => CAT_LABELS[lang][c] ?? c;
@@ -37,6 +41,7 @@ export default function ServicesPage() {
           </a>
           <div className="flex items-center gap-2">
             <button className="chip !py-1.5" onClick={() => setLang(lang === "en" ? "de" : "en")} aria-label={t.switchLang}>{lang === "en" ? "DE" : "EN"}</button>
+            <button className="chip !py-1.5" onClick={() => setDark(!dark)} aria-label={t.toggleTheme}>{dark ? t.themeLight : t.themeDark}</button>
             <a href="/#booking" className="btn-primary !py-2 !px-4 text-sm">{t.book}</a>
           </div>
         </div>
