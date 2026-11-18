@@ -314,3 +314,58 @@ exact versions, gates and drops. No paid signup, no Pro purchase.
   cache. Live: https://orchidea-berlin-demo.vercel.app
 - NOT VERIFIED — real-browser audit (desktop + 375px + console errors)
   still open; the parent runs it next. The build is shipped, NOT final.
+
+## v4.1 — Browser-audit fixes: 19 Nov 2026 ~03:02–03:20 WIB
+- Audit (browser task, desktop 1919×998, ~03:01 WIB) found 4 items; everything
+  else PASSED (booking steps 0–5 incl. demo-days-only picker + Deposit Slide
+  rendering, dark-mode + DE/EN persistence, /services + /team, EUR prices,
+  DEMO labels, legal stubs). Verdicts below were each PROVEN locally with a
+  real Chromium (Playwright, ~/.cache/ms-playwright/chromium-1248) against
+  the local prod server — external TLS fails in this VM, localhost works.
+  Screenshots: /tmp/v41-hero-mid-reveal.png, /tmp/v41-ticker.png (shot
+  timed out — the track never stops moving, itself proof of animation),
+  /tmp/v41-datepicker-open.png. Script: /tmp/verify-v41.mjs.
+- (a) Ticker "not found" — FALSE POSITIVE, no code change. The ticker IS in
+  the DOM and rendering: marquee-track 4151px wide, `animation: marquee`,
+  opacity 1, service text present ("Balayage & Gloss from €130 ✦ …").
+  The auditor searched the accessibility tree, where the band is hidden by
+  design (`aria-hidden="true"` on a decorative duplicated marquee — correct
+  a11y practice), and/or never scrolled below the 92svh hero. No defect.
+- (b) Date picker covering step nav — REAL DEFECT, FIXED. Root cause: the
+  Arc popover was `position: absolute; top: calc(100% + 8px)` inside
+  `.anchor`, so the ~380px calendar overlaid the nav (mt-6 below the step
+  content) and spilled over Admin Demo. Fix (components/arc/date-picker/
+  date-picker.module.css only): popover is now IN-FLOW (`position:
+  relative; margin-top: 8px`) — opening the calendar pushes the slot
+  chips, taken-note and step nav down; nothing is ever covered. Verified
+  locally: popover y 1006–1415, nav buttons y 1546, overlap false for
+  both; screenshot shows calendar in-flow, chips + "← Back" / "Continue →"
+  fully visible below it. Demo-days-only intact (42 day cells, 4 enabled);
+  month prev/next BOTH disabled BY DESIGN (demo month pinned, blueprint
+  §11) — visually clear via `aria-disabled` + opacity .36; not enabled.
+- (c) Cookie banner never appeared — FALSE POSITIVE, no code change. The
+  banner renders only when localStorage `orchidea-cookies` is unset
+  (app/page.tsx:76,133-146,736-741); the shared browser profile already
+  holds "rejected" from the v3.7 audit, so it correctly stays hidden.
+  Proven with a fresh profile: banner VISIBLE on first load, localStorage
+  "rejected" after clicking Ablehnen, banner HIDDEN after reload. The v3.7
+  persistence fix is untouched.
+- (d) Hero headline clipped mid-reveal — NO DEFECT, no code change. The
+  word-rise animation (`.word-rise` overflow hidden, inner span
+  translateY(110%) → 0, .9s + per-word delay) transiently shows words
+  rising — that IS the animation, not clipping. At rest the headline is
+  full ("Beauty, without the wait.", h1 box 768×197.6); even the ~0.8s
+  mid-reveal capture shows no clipping. Acceptable animation behaviour.
+- Verification (this session, after the fix): `npm run audit:v4` PASS;
+  `npm run build` exit 0, 10 static pages; `/` 209 kB (gate 210 kB, Dony
+  19 Nov 2026) — CSS-only fix, no JS size change. No new prices/facts,
+  no Pro components, no Lenis/GSAP, pinned demo-month rule unchanged.
+- Headless-run console note (NOT a site defect, needs the parent's live
+  browser re-audit to confirm): 34× ERR_TUNNEL_CONNECTION_FAILED — the
+  VM's egress proxy blocks Chromium's external requests (Unsplash images /
+  fonts; known VM limitation, curl works) — plus one 404 console error
+  with no matching 404 in the local server log (external resource).
+- Re-audit must re-check explicitly: ticker visibility (scroll below hero;
+  do NOT rely on the accessibility tree — the band is aria-hidden by
+  design), date-picker overlap at desktop + 375px, cookie banner in a
+  FRESH profile, hero reveal, console errors on the live site.
