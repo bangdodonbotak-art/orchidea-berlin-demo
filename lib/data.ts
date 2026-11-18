@@ -127,6 +127,27 @@ export const DAY_LABELS: Record<Lang, Record<string, string>> = {
   de: { "Fri 20 Nov": "Fr., 20. Nov.", "Sat 21 Nov": "Sa., 21. Nov.", "Mon 23 Nov": "Mo., 23. Nov.", "Tue 24 Nov": "Di., 24. Nov." },
 };
 
+// Demo availability — the ONLY availability source (v4, T3; moved here from
+// app/page.tsx so the date picker and the chip fallback share it).
+// Fixed November-2026 dates; they go stale within days of the build — the
+// handover must state the demo month. Never auto-generate future days:
+// a calendar that invents availability lies about a demo.
+export const DEMO_DAYS = [
+  { id: "Fri 20 Nov", date: new Date(2026, 10, 20) },
+  { id: "Sat 21 Nov", date: new Date(2026, 10, 21) },
+  { id: "Mon 23 Nov", date: new Date(2026, 10, 23) },
+  { id: "Tue 24 Nov", date: new Date(2026, 10, 24) },
+] as const;
+export const DEMO_SLOTS = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00", "18:30"];
+export const DEMO_TAKEN: Record<string, string[]> = { "Fri 20 Nov": ["09:00", "14:00"], "Sat 21 Nov": ["10:30", "12:00"], "Mon 23 Nov": ["17:00"], "Tue 24 Nov": [] };
+export const DEMO_MIN_DATE = DEMO_DAYS[0].date; // Fri 20 Nov 2026
+export const DEMO_MAX_DATE = DEMO_DAYS[DEMO_DAYS.length - 1].date; // Tue 24 Nov 2026
+const sameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+/** Pure enable rule for the Arc date picker — mirrors DEMO_DAYS exactly. */
+export const isDateAvailable = (d: Date) => DEMO_DAYS.some((x) => sameDay(x.date, d));
+/** Date → demo day id ("Fri 20 Nov"), or null if the date is not a demo day. */
+export const demoDayId = (d: Date) => DEMO_DAYS.find((x) => sameDay(x.date, d))?.id ?? null;
+
 // Proposal cards — $ amounts stay as quoted USD market ranges (v3.2: titles
 // + body translated to German; the EUR footnote lives in T.proposalFootnote).
 export type ProposalCard = { title: string; titleDe: string; price: string; body: string; bodyDe: string };
@@ -134,6 +155,36 @@ export const PROPOSAL_CARDS: ProposalCard[] = [
   { title: "Demo website", titleDe: "Demo-Website", price: "$500–$2,000", body: "This demo: 5–7 pages, DE/EN shell, simulated booking + admin demo.", bodyDe: "Diese Demo: 5–7 Seiten, DE/EN, simulierte Buchung + Admin-Demo." },
   { title: "Full build — freelancer", titleDe: "Vollversion — Freiberufler", price: "$1,700–$5,750", body: "Live booking, PayPal payments, reminders, admin. (One estimator puts it $2,900–$8,700.)", bodyDe: "Echte Buchung, PayPal-Zahlungen, Erinnerungen, Admin. (Ein Schätzer nennt $2.900–$8.700.)" },
   { title: "Full build — agency", titleDe: "Vollversion — Agentur", price: "$5,750–$16,600", body: "Strategy, brand design, copy, integrations, multi-location.", bodyDe: "Strategie, Markendesign, Texte, Integrationen, mehrere Standorte." },
+];
+
+// FAQ — v4 (T5). Every answer restates an EXISTING policy line, nothing
+// new is invented. Sources: cancellation → cancelNote; deposit → depositText;
+// no account → bookingSub. The 4th planned item ("what happens after
+// booking") has NO exact policy line in the app, so it is OMITTED per the
+// §11 rule (max 4, 3 is acceptable) — the demo sends no reminder and no
+// confirmation email, and claiming otherwise would invent a fact.
+// German answers are written from the existing DE policy strings, not
+// machine-translated.
+export type FaqItem = { q: string; qDe: string; a: string; aDe: string };
+export const FAQ: FaqItem[] = [
+  {
+    q: "Can I cancel my booking?",
+    qDe: "Kann ich meinen Termin stornieren?",
+    a: "Yes — free cancellation up to 24 hours before your slot. The €20 deposit covers no-shows. (Sample policy for the demo — the real terms are confirmed with the client and a German lawyer.)",
+    aDe: "Ja — kostenlos bis 24 Stunden vor Ihrem Termin. Die Anzahlung von €20 deckt Nichterscheinen ab. (Beispielregelung für die Demo — echte AGB sind mit dem Kunden und einem deutschen Anwalt zu bestätigen.)",
+  },
+  {
+    q: "How does the €20 deposit work?",
+    qDe: "Wie funktioniert die Anzahlung von €20?",
+    a: "PayPal only. In the real build you are redirected to PayPal Checkout to pay the deposit — no card details on this site. Here nothing is charged; this is a demo, no payment is taken.",
+    aDe: "Nur PayPal. In der echten Version werden Sie zum PayPal-Checkout weitergeleitet, um die Anzahlung zu zahlen — keine Kartendaten auf dieser Seite. Hier wird nichts berechnet; dies ist eine Demo, keine Zahlung wird getätigt.",
+  },
+  {
+    q: "Do I need an account to book?",
+    qDe: "Brauche ich ein Konto, um zu buchen?",
+    a: "No — six steps, no account needed. Slots shown are sample data. No real booking is made and no payment is taken.",
+    aDe: "Nein — sechs Schritte, kein Konto nötig. Die angezeigten Termine sind Beispieldaten. Es wird keine echte Buchung vorgenommen und keine Zahlung getätigt.",
+  },
 ];
 
 export const T: Record<Lang, Record<string, string>> = {
@@ -171,6 +222,8 @@ export const T: Record<Lang, Record<string, string>> = {
     depositText: "PayPal only. In the real build you are redirected to PayPal Checkout to pay the deposit — no card details on this site. Here nothing is charged; click confirm to see the demo confirmation.",
     depositSecure: "Secure deposit · €20 · DEMO, no payment taken",
     confirmBooking: "Confirm demo booking", continueBtn: "Continue →", backBtn: "← Back",
+    slideLabel: "Slide to confirm your €20 deposit", slideConfirmed: "Deposit confirmed",
+    servicesDisclaimer: "All prices are sample/demo prices in EUR — not a real salon menu. The €20 deposit is simulated via PayPal; no real payment is taken.",
     confirmedTitle: "Demo confirmed — no booking made, no payment taken",
     bookAnother: "Book another (demo)",
     summaryTitle: "Your booking", sumParlour: "Parlour", sumSpecialist: "Specialist", sumWhen: "When",
@@ -202,6 +255,10 @@ export const T: Record<Lang, Record<string, string>> = {
     prevTesti: "Previous testimonial", nextTesti: "Next testimonial", testiLabel: "Testimonial",
     daylightAria: "Daylight to evening", locationLabel: "Location", serviceLabel: "Service",
     switchLang: "Switch language", toggleTheme: "Toggle theme", atWord: "at",
+    dateLabel: "Choose your day", datePlaceholder: "Select a date",
+    dateDemoNote: "Sample days only — DEMO. Only the highlighted days can be booked in this demo.",
+    stepsComplete: "All steps complete",
+    faqTitle: "Questions, answered",
   },
   de: {
     navServices: "Leistungen", navTeam: "Team", navGallery: "Galerie", navVisit: "Besuch", navProposal: "Angebot",
@@ -237,6 +294,8 @@ export const T: Record<Lang, Record<string, string>> = {
     depositText: "Nur PayPal. In der echten Version werden Sie zum PayPal-Checkout weitergeleitet, um die Anzahlung zu zahlen — keine Kartendaten auf dieser Seite. Hier wird nichts berechnet; klicken Sie auf Bestätigen, um die Demo-Bestätigung zu sehen.",
     depositSecure: "Sichere Anzahlung · €20 · DEMO, keine Zahlung getätigt",
     confirmBooking: "Demo-Buchung bestätigen", continueBtn: "Weiter →", backBtn: "← Zurück",
+    slideLabel: "Zum Bestätigen wischen — €20 Anzahlung", slideConfirmed: "Anzahlung bestätigt",
+    servicesDisclaimer: "Alle Preise sind Beispielpreise in EUR für die Demo — keine echte Preisliste. Die Anzahlung von €20 wird per PayPal simuliert; es wird keine echte Zahlung getätigt.",
     confirmedTitle: "Demo bestätigt — keine Buchung vorgenommen, keine Zahlung getätigt",
     bookAnother: "Weitere Demo-Buchung",
     summaryTitle: "Ihre Buchung", sumParlour: "Salon", sumSpecialist: "Spezialist", sumWhen: "Wann",
@@ -268,6 +327,10 @@ export const T: Record<Lang, Record<string, string>> = {
     prevTesti: "Vorherige Bewertung", nextTesti: "Nächste Bewertung", testiLabel: "Bewertung",
     daylightAria: "Tageslicht bis Abend", locationLabel: "Standort", serviceLabel: "Leistung",
     switchLang: "Sprache wechseln", toggleTheme: "Thema wechseln", atWord: "um",
+    dateLabel: "Wählen Sie Ihren Tag", datePlaceholder: "Datum wählen",
+    dateDemoNote: "Nur Beispieltage — DEMO. Nur die markierten Tage können in dieser Demo gebucht werden.",
+    stepsComplete: "Alle Schritte abgeschlossen",
+    faqTitle: "Fragen, beantwortet",
   },
 };
 

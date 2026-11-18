@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+/* v4 (T1): Arc foundation tokens, then the Orchidea override LAST.
+   foundation.css is vendor (never edited); lib/arc-tokens.css maps
+   every Arc semantic variable onto Orchidea tokens, light + dark. */
+import "@/components/arc/foundation.css";
+import "@/lib/arc-tokens.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://orchidea-berlin-demo.vercel.app"),

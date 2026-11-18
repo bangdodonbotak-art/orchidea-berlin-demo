@@ -4,6 +4,8 @@ import { CAT_LABELS, SERVICES, T, type Service } from "../../lib/data";
 import { useLang } from "../../lib/useLang";
 import { useTheme } from "../../lib/useTheme";
 import ServiceCard from "../../lib/ServiceCard";
+// v4 (T4): Tabs adapter — same filter component as the homepage.
+import { ArcTabs, ArcTabsList, ArcTabsTrigger } from "../../components/arc/ArcTabs";
 
 /* /services — full services & prices page (v3.1, defect 6).
    v3.6: UNIFORM grid — the same shared ServiceCard as the homepage
@@ -51,10 +53,15 @@ export default function ServicesPage() {
           <p className="text-xs tracking-[0.25em] uppercase gold">{t.demoNote}</p>
           <h1 className="font-display text-5xl sm:text-6xl font-semibold mt-3">{t.servicesTitle}</h1>
           <p className="muted mt-3 max-w-2xl mx-auto">{t.servicesSub}</p>
-          <div className="flex flex-wrap justify-center gap-2 mt-8">
-            {(["All", "Hair", "Skin", "Nails", "Massage"] as const).map((c) => (
-              <button key={c} className={`chip ${cat === c ? "active" : ""}`} onClick={() => setCat(c)}>{catLabel(c)}</button>
-            ))}
+          {/* v4 (T4): Arc Tabs — same filter as the homepage. */}
+          <div className="flex justify-center mt-8">
+            <ArcTabs value={cat} onValueChange={(v) => setCat(v as typeof cat)}>
+              <ArcTabsList>
+                {(["All", "Hair", "Skin", "Nails", "Massage"] as const).map((c) => (
+                  <ArcTabsTrigger key={c} value={c}>{catLabel(c)}</ArcTabsTrigger>
+                ))}
+              </ArcTabsList>
+            </ArcTabs>
           </div>
         </div>
         <div key={cat} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-stretch gap-4 sm:gap-5 mt-10">
@@ -76,9 +83,7 @@ export default function ServicesPage() {
           ))}
         </div>
         <p className="muted text-sm mt-10 text-center max-w-2xl mx-auto">
-          {lang === "de"
-            ? "Alle Preise sind Beispielpreise in EUR für die Demo — keine echte Preisliste. Die Anzahlung von €20 wird per PayPal simuliert; es wird keine echte Zahlung getätigt."
-            : "All prices are sample/demo prices in EUR — not a real salon menu. The €20 deposit is simulated via PayPal; no real payment is taken."}
+          {t.servicesDisclaimer}
         </p>
         <p className="mt-6 text-center"><a href="/" className="font-semibold accent hover:underline">← {lang === "de" ? "Zurück zur Startseite" : "Back to home"}</a></p>
       </main>

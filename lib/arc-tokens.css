@@ -1,0 +1,100 @@
+/* Orchidea → Arc token mapping (v4, T1). Single override file.
+   foundation.css is vendor — NEVER edited. Import order in
+   app/layout.tsx: globals.css → foundation.css → THIS FILE LAST.
+   Same-specificity selectors (:root / [data-theme="dark"]) so source
+   order wins; all three files are unlayered, so the Tailwind-4
+   layer trap does not apply (globals.css only layers Tailwind's own
+   utilities, not these :root rules).
+
+   WHY this file exists: Arc's default accent is NEUTRAL — light
+   oklch(33% 0 0) near-black, dark oklch(80% 0 0) near-white — and its
+   fonts default to Inter/Geist. Without this mapping every Arc
+   selection ring / stepper marker / calendar day renders black/white
+   in Inter. Every semantic variable the 8 components + calendar
+   consume (audited from the installed .module.css files, 19 Nov 2026)
+   is mapped here, in BOTH themes. No --arc-gradient-* variable is
+   consumed by any component, so none is mapped (anti-slop: no
+   gradient wash, ever).
+
+   The ONE exception lives in the vendored module, not here:
+   components/arc/button/button.module.css .primary — Arc's primary
+   button fills with var(--foreground) (ink), not --accent, so no
+   variable mapping can make it magenta. That single rule is edited
+   in place (see the comment at the top of that file). */
+
+:root {
+  --background: #faf6ef;
+  --surface: #fffdf9;
+  --surface-raised: #fffdf9;
+  --surface-muted: #f3ecdf;
+  --foreground: #241d1a;
+  --text-secondary: #5c514b;
+  --text-muted: #5c514b;
+  --border: #e8ddcb;
+  --border-subtle: #efe7d8;
+  --border-strong: #b9975b;
+  --accent: #c2185b;
+  --accent-strong: #9d174d;
+  --accent-subtle: rgb(194 24 91 / 0.1);
+  --accent-foreground: #ffffff;
+  --control-on: #c2185b;
+  --control-glyph: #ffffff;
+  --control-track: #e8ddcb;
+  --control-track-hover: #d8c9a8;
+  --control-thumb: #ffffff;
+  --control-thumb-on: #ffffff;
+  --control-fill: #c2185b;
+  --danger: #b3261e;
+  --font-body: "Jost", "Avenir Next", system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --radius-control: 999px;
+  --radius-panel: 1rem;
+  --radius-surface: 1rem;
+}
+
+[data-theme="dark"] {
+  --background: #171210;
+  --surface: #241b18;
+  --surface-raised: #2a201c;
+  --surface-muted: #221a17;
+  --foreground: #f5ede3;
+  --text-secondary: #c9b8ab;
+  --text-muted: #c9b8ab;
+  --border: #3d2f2a;
+  --border-subtle: #2e231f;
+  --border-strong: #b9975b;
+  --accent: #c2185b;
+  --accent-strong: #9d174d;
+  --accent-subtle: rgb(194 24 91 / 0.18);
+  --accent-foreground: #ffffff;
+  --control-on: #c2185b;
+  --control-glyph: #ffffff;
+  --control-track: #3d2f2a;
+  --control-track-hover: #4a3a33;
+  --control-thumb: #f5ede3;
+  --control-thumb-on: #ffffff;
+  --control-fill: #c2185b;
+  --danger: #f28b82;
+  --font-body: "Jost", "Avenir Next", system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --radius-control: 999px;
+  --radius-panel: 1rem;
+  --radius-surface: 1rem;
+}
+
+/* Stat digits: AnimatedCounter sets color: var(--foreground) and
+   font-size: var(--text-3xl) (1.75rem) on its own root, so the v3.8
+   magenta stat numbers (text-4xl / sm:text-5xl) need a scoped override.
+   This class is applied ONLY to the stats value wrappers in app/page.tsx —
+   it changes --foreground and --text-3xl (and nothing else) inside that
+   subtree. The admin numbers use the counter WITHOUT this class (ink,
+   default size). */
+.arcStatDigits {
+  --foreground: #c2185b;
+  --text-3xl: 2.25rem;
+}
+@media (min-width: 640px) {
+  .arcStatDigits {
+    --text-3xl: 3rem;
+  }
+}

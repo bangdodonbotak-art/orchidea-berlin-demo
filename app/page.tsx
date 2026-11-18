@@ -1,16 +1,27 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  CAT_LABELS, DAY_LABELS, DEPOSIT_EUR, GALLERY, HERO_IMAGES, LOCATIONS, MOOD_OPTIONS, PAYMENT_METHODS, PROPOSAL_CARDS, SERVICES, STAFF, STEP_NAMES, T, TESTIMONIALS, TIME_OPTIONS,
-  fmtEUR, type Service,
+  CAT_LABELS, DAY_LABELS, DEMO_DAYS, DEMO_MAX_DATE, DEMO_MIN_DATE, DEMO_SLOTS, DEMO_TAKEN, DEPOSIT_EUR, FAQ, GALLERY, HERO_IMAGES, LOCATIONS, MOOD_OPTIONS, PAYMENT_METHODS, PROPOSAL_CARDS, SERVICES, STAFF, STEP_NAMES, T, TESTIMONIALS, TIME_OPTIONS,
+  demoDayId, fmtEUR, isDateAvailable, type Service,
 } from "../lib/data";
 import { useLang } from "../lib/useLang";
 import { useTheme } from "../lib/useTheme";
 import ServiceCard from "../lib/ServiceCard";
-
-const DAYS = ["Fri 20 Nov", "Sat 21 Nov", "Mon 23 Nov", "Tue 24 Nov"];
-const SLOTS = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00", "18:30"];
-const TAKEN: Record<string, string[]> = { "Fri 20 Nov": ["09:00", "14:00"], "Sat 21 Nov": ["10:30", "12:00"], "Mon 23 Nov": ["17:00"], "Tue 24 Nov": [] };
+// v4 (T2): Arc adapters — feature code imports from components/arc/*,
+// never from the registry paths directly (blueprint §11).
+import { ArcButton } from "../components/arc/ArcButton";
+import { ArcRadioCards } from "../components/arc/ArcRadioCards";
+// v4 (T3): Stepper + DatePicker adapters.
+import { ArcStepper } from "../components/arc/ArcStepper";
+import { ArcDatePicker } from "../components/arc/ArcDatePicker";
+// v4 (T4): Tabs adapter (service filter, homepage + /services).
+import { ArcTabs, ArcTabsList, ArcTabsTrigger } from "../components/arc/ArcTabs";
+// v4 (T5): Accordion adapter (FAQ section).
+import { ArcAccordion } from "../components/arc/ArcAccordion";
+// v4 (T7): AnimatedCounter adapter (stats + admin count).
+import { ArcCounter } from "../components/arc/ArcCounter";
+// v4 (T8): Deposit Slide (Bencho "Slide to confirm", rewritten from scratch).
+import { DepositSlide } from "../lib/DepositSlide";
 
 type Booking = { location: string; service: string; staff: string; day: string; slot: string; name: string; email: string };
 
@@ -45,30 +56,10 @@ function useReveal() {
 }
 
 /* Animated counter — counts up once when scrolled into view (1200ms ease-out) */
-function CountUp({ end, suffix = "" }: { end: number; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const [val, setVal] = useState(0);
-  const started = useRef(false);
-  const rm = useReducedMotion();
-  useEffect(() => {
-    const el = ref.current; if (!el) return;
-    if (rm) { setVal(end); return; }
-    const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !started.current) {
-        started.current = true;
-        const t0 = performance.now();
-        const tick = (now: number) => {
-          const p = Math.min(1, (now - t0) / 1200);
-          setVal(Math.round(end * (1 - Math.pow(1 - p, 3))));
-          if (p < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-      }
-    }, { threshold: 0.4 });
-    io.observe(el); return () => io.disconnect();
-  }, [end, rm]);
-  return <span ref={ref}>{val}{suffix}</span>;
-}
+// v4 (T7): DELETED — replaced by Arc AnimatedCounter (see stats + admin
+// below). The hand-rolled CountUp is gone; reduced-motion is handled by
+// the Arc component (final values instantly).
+
 
 export default function Home() {
   // Language persists across pages/tabs via localStorage (v3.4, useLang).
@@ -208,7 +199,13 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightbox, gcat]);
 
+  // v4 (T8): confirmBooking must be idempotent — the Deposit Slide and
+  // the native Confirm button both call it, and a double-click must not
+  // push two admin rows. The guard is reset by "Book another" (step 6).
+  const confirmGuard = useRef(false);
   const confirmBooking = () => {
+    if (confirmGuard.current) return;
+    confirmGuard.current = true;
     const done = { ...b, staff: b.staff === "any" ? staffForService[0]?.id ?? "any" : b.staff };
     setConfirmed(done);
     setAdmin((a) => [...a, done]);
@@ -345,13 +342,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats — count-up on view */}
+      {/* Stats — v4 (T7): Arc AnimatedCounter. Values unchanged (sample
+          data, labelled as before); locale is explicit so server and
+          client render the same digits; reduced-motion shows final values
+          instantly. .arcStatDigits scopes the magenta + size to these
+          numbers (see lib/arc-tokens.css). "0 min" is value 0 + suffix. */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
         <div className="reveal grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div className="card rounded-2xl py-8 px-3 lift"><div className="font-display text-4xl sm:text-5xl font-semibold accent"><CountUp end={4} /></div><div className="muted text-sm mt-2">{t.statParlours}</div></div>
-          <div className="card rounded-2xl py-8 px-3 lift"><div className="font-display text-4xl sm:text-5xl font-semibold accent"><CountUp end={12} suffix="+" /></div><div className="muted text-sm mt-2">{t.statSpecialists}</div></div>
-          <div className="card rounded-2xl py-8 px-3 lift"><div className="font-display text-4xl sm:text-5xl font-semibold accent"><CountUp end={8} /></div><div className="muted text-sm mt-2">{t.statRituals}</div></div>
-          <div className="card rounded-2xl py-8 px-3 lift"><div className="font-display text-4xl sm:text-5xl font-semibold accent">{t.zeroMin}</div><div className="muted text-sm mt-2">{t.statWaiting}</div></div>
+          <div className="card rounded-2xl py-8 px-3 lift"><div className="arcStatDigits font-display text-4xl sm:text-5xl font-semibold accent"><ArcCounter value={4} locale={lang === "de" ? "de-DE" : "en-US"} animateOnView /></div><div className="muted text-sm mt-2">{t.statParlours}</div></div>
+          <div className="card rounded-2xl py-8 px-3 lift"><div className="arcStatDigits font-display text-4xl sm:text-5xl font-semibold accent"><ArcCounter value={12} suffix="+" locale={lang === "de" ? "de-DE" : "en-US"} animateOnView /></div><div className="muted text-sm mt-2">{t.statSpecialists}</div></div>
+          <div className="card rounded-2xl py-8 px-3 lift"><div className="arcStatDigits font-display text-4xl sm:text-5xl font-semibold accent"><ArcCounter value={8} locale={lang === "de" ? "de-DE" : "en-US"} animateOnView /></div><div className="muted text-sm mt-2">{t.statRituals}</div></div>
+          <div className="card rounded-2xl py-8 px-3 lift"><div className="arcStatDigits font-display text-4xl sm:text-5xl font-semibold accent"><ArcCounter value={0} suffix={lang === "de" ? " Min." : " min"} locale={lang === "de" ? "de-DE" : "en-US"} animateOnView /></div><div className="muted text-sm mt-2">{t.statWaiting}</div></div>
         </div>
       </section>
 
@@ -411,8 +412,20 @@ export default function Home() {
         <div className="reveal text-center">
           <h2 className="font-display text-4xl sm:text-5xl font-semibold">{t.servicesTitle}</h2>
           <p className="muted mt-3 max-w-2xl mx-auto">{t.servicesSub}</p>
-          <div className="flex flex-wrap justify-center gap-2 mt-6">
-            {(["All", "Hair", "Skin", "Nails", "Massage"] as const).map((c) => <button key={c} className={`chip ${cat === c ? "active" : ""}`} onClick={() => setCat(c)}>{catLabel(c)}</button>)}
+          {/* v4 (T4): Arc Tabs replace the chip filter row. The pill glides
+              on a morph spring; on 375 px the list scrolls internally with
+              Arc's edge buttons (5 × 5.5rem min-width ≈ 440px > 375px, so
+              overflow is certain — clipping is the failure, not overflow).
+              The grid below is untouched (uniform 4×2 for All; filtered
+              states reflow with the same card, same order). */}
+          <div className="flex justify-center mt-6">
+            <ArcTabs value={cat} onValueChange={(v) => setCat(v as typeof cat)}>
+              <ArcTabsList>
+                {(["All", "Hair", "Skin", "Nails", "Massage"] as const).map((c) => (
+                  <ArcTabsTrigger key={c} value={c}>{catLabel(c)}</ArcTabsTrigger>
+                ))}
+              </ArcTabsList>
+            </ArcTabs>
           </div>
         </div>
         <div key={cat} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-stretch gap-4 sm:gap-5 mt-8">
@@ -517,6 +530,22 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ — v4 (T5): Arc Accordion between Testimonials and Booking.
+          defaultOpen={-1} = all closed on first render, so the FAQ does
+          not push the booking section down on load. Copy comes only from
+          existing policy lines (see FAQ in lib/data.ts); no eyebrow label,
+          the headline stands alone. */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-14 sm:pb-20">
+        <h2 className="reveal font-display text-4xl sm:text-5xl font-semibold">{t.faqTitle}</h2>
+        <div className="reveal mt-8">
+          <ArcAccordion
+            size="lg"
+            defaultOpen={-1}
+            items={FAQ.map((f) => ({ title: lang === "de" ? f.qDe : f.q, content: lang === "de" ? f.aDe : f.a }))}
+          />
+        </div>
+      </section>
+
       {/* Booking — animated progress, clickable steps, live summary, PayPal only */}
       <section id="booking" className="lux-glow max-w-6xl mx-auto px-4 sm:px-6 pb-14 sm:pb-20">
         <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
@@ -527,29 +556,72 @@ export default function Home() {
             <div className="h-1.5 rounded-full mt-6 overflow-hidden" style={{ background: "var(--line)" }}>
               <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(Math.min(step, 5) / 5) * 100}%`, background: "linear-gradient(90deg, var(--gold), var(--magenta))" }} />
             </div>
-            <div className="flex gap-2 mt-4 flex-wrap">
-              {stepNames.map((s, i) => (
-                <button
-                  key={s}
-                  disabled={i >= step}
-                  onClick={() => i < step && setStep(i)}
-                  className={`text-xs px-3 py-1.5 rounded-full border transition-all duration-200 ${step >= i ? "text-white" : "muted"} ${i < step ? "cursor-pointer hover:opacity-80" : ""}`}
-                  style={step >= i ? { background: "var(--magenta)", borderColor: "var(--magenta)" } : { borderColor: "var(--line)" }}
-                >{i + 1}. {s}{i < step ? " ✓" : ""}</button>
-              ))}
+            {/* v4 (T3): Arc Stepper replaces the hand-rolled step-dot row.
+                Completed steps are clickable backwards (onStepSelect only
+                fires for completed steps); at step 6 (confirmation) the
+                stepper shows its complete state. Below 30rem container
+                width it switches to markers-only with the current step's
+                label underneath — the expected 375 px behaviour. */}
+            <div className="mt-4">
+              <ArcStepper
+                steps={stepNames.map((label, i) => ({ id: `step-${i}`, label }))}
+                current={step}
+                onStepSelect={(i) => setStep(i)}
+                completeLabel={t.stepsComplete}
+              />
             </div>
             {step < 6 && (
               <div className="mt-8" key={step}>
                 <div className="step-in">
-                  {step === 0 && <div className="grid sm:grid-cols-2 gap-3">{LOCATIONS.map((l) => <button key={l.id} className={`card rounded-2xl p-5 text-left lift ${b.location === l.id ? "ring-2" : ""}`} style={b.location === l.id ? { ["--tw-ring-color" as string]: "var(--magenta)" } : {}} onClick={() => setB({ ...b, location: l.id })}><b className="font-display text-xl">{l.name}</b><br /><span className="muted text-sm">{l.address}<br />{locHours(l)}</span></button>)}</div>}
-                  {step === 1 && <div className="grid sm:grid-cols-2 gap-3">{SERVICES.map((s) => <button key={s.id} className={`card rounded-2xl p-5 text-left lift ${b.service === s.id ? "ring-2" : ""}`} style={b.service === s.id ? { ["--tw-ring-color" as string]: "var(--magenta)" } : {}} onClick={() => setB({ ...b, service: s.id })}><b className="font-display text-xl">{sName(s)}</b> <span className="muted text-sm">· {s.mins} {t.minUnit} · {t.priceFrom} {fmtEUR(s.from)}</span><br /><span className="muted text-sm">{sDesc(s)}</span></button>)}</div>}
-                  {step === 2 && <div className="grid sm:grid-cols-2 gap-3">
-                    <button className={`card rounded-2xl p-5 text-left lift ${b.staff === "any" ? "ring-2" : ""}`} onClick={() => setB({ ...b, staff: "any" })}><b className="font-display text-xl">{t.firstAvailable}</b><br /><span className="muted text-sm">{t.fastestSlot}</span></button>
-                    {staffForService.map((s) => <button key={s.id} className={`card rounded-2xl p-5 text-left flex gap-4 items-center lift ${b.staff === s.id ? "ring-2" : ""}`} onClick={() => setB({ ...b, staff: s.id })}><img src={s.img} alt={s.name} className="w-14 h-14 rounded-full object-cover" /><span><b className="font-display text-xl">{s.name}</b><br /><span className="muted text-sm">{staffRole(s)}</span></span></button>)}
-                  </div>}
+                  {/* v4 (T2): Arc RadioCards replace the plain button grids.
+                      One tab stop, arrow-key roving, sliding magenta ring
+                      (var(--control-on)); minColumnWidth 300 keeps the
+                      v3.8 two-column layout in the ~700px form column and
+                      collapses to one column on mobile. */}
+                  {step === 0 && <ArcRadioCards
+                    value={b.location}
+                    onValueChange={(v) => setB({ ...b, location: v })}
+                    minColumnWidth={300}
+                    options={LOCATIONS.map((l) => ({ value: l.id, label: l.name, description: `${l.address} · ${locHours(l)}` }))}
+                  />}
+                  {step === 1 && <ArcRadioCards
+                    value={b.service}
+                    onValueChange={(v) => setB({ ...b, service: v })}
+                    minColumnWidth={300}
+                    options={SERVICES.map((s) => ({ value: s.id, label: sName(s), description: sDesc(s), meta: `${s.mins} ${t.minUnit} · ${t.priceFrom} ${fmtEUR(s.from)}` }))}
+                  />}
+                  {step === 2 && <ArcRadioCards
+                    value={b.staff}
+                    onValueChange={(v) => setB({ ...b, staff: v })}
+                    minColumnWidth={300}
+                    options={[
+                      { value: "any", label: t.firstAvailable, description: t.fastestSlot },
+                      // No avatar icon: Arc's icon slot is an 18px box; the
+                      // v3.8 56px photos live in the Team section instead.
+                      ...staffForService.map((s) => ({ value: s.id, label: s.name, description: staffRole(s) })),
+                    ]}
+                  />}
                   {step === 3 && <div>
-                    <div className="flex flex-wrap gap-2">{DAYS.map((d) => <button key={d} className={`chip ${b.day === d ? "active" : ""}`} onClick={() => setB({ ...b, day: d, slot: "" })}>{fmtDay(d)}</button>)}</div>
-                    <div className="flex flex-wrap gap-2 mt-4">{SLOTS.map((s) => { const taken = TAKEN[b.day]?.includes(s); return <button key={s} disabled={taken} className={`chip ${b.slot === s ? "active" : ""} disabled:opacity-35 disabled:line-through`} onClick={() => setB({ ...b, slot: s })}>{s}</button>; })}</div>
+                    {/* v4 (T3): Arc DatePicker replaces the DAYS chip list.
+                        Only DEMO_DAYS are enabled (isDateAvailable mirrors
+                        DEMO_DAYS exactly); min/max pin the demo month, so
+                        month navigation is constrained to November 2026.
+                        Locale is de-DE in DE mode (month + weekday names,
+                        German aria-labels). The DEMO note sits inside the
+                        picker surface via `description`. Slots stay chips.
+                        Clear = no-op: the demo always has a day selected. */}
+                    <ArcDatePicker
+                      label={t.dateLabel}
+                      value={DEMO_DAYS.find((d) => d.id === b.day)?.date}
+                      onChange={(d) => { if (!d) return; const id = demoDayId(d); if (id) setB({ ...b, day: id, slot: "" }); }}
+                      placeholder={t.datePlaceholder}
+                      description={t.dateDemoNote}
+                      locale={lang === "de" ? "de-DE" : "en-US"}
+                      minDate={DEMO_MIN_DATE}
+                      maxDate={DEMO_MAX_DATE}
+                      disabledDates={(d) => !isDateAvailable(d)}
+                    />
+                    <div className="flex flex-wrap gap-2 mt-4">{DEMO_SLOTS.map((s) => { const taken = DEMO_TAKEN[b.day]?.includes(s); return <button key={s} disabled={taken} className={`chip ${b.slot === s ? "active" : ""} disabled:opacity-35 disabled:line-through`} onClick={() => setB({ ...b, slot: s })}>{s}</button>; })}</div>
                     <p className="muted text-sm mt-3">{t.takenNote}</p>
                   </div>}
                   {step === 4 && <div className="grid sm:grid-cols-2 gap-3">
@@ -564,11 +636,18 @@ export default function Home() {
                       <span className="text-sm"><b>{t.payWithPayPal}</b><br /><span className="muted">{t.depositSecure}</span></span>
                     </div>
                     <p className="mt-3 text-sm"><b>{sName(service)}</b> · {LOCATIONS.find((l) => l.id === b.location)?.name} · {fmtDay(b.day)} {t.atWord} {b.slot || "—"} · {t.priceFrom} {fmtEUR(service.from)} · via PayPal</p>
+                    {/* The Deposit Slide — v4 (T8). Pointer-only, aria-hidden;
+                        the native Confirm button below is ALWAYS present as
+                        the keyboard/AT path; under reduced motion the slide
+                        is not rendered at all. */}
+                    <div className="mt-5">
+                      <DepositSlide label={t.slideLabel} confirmedLabel={t.slideConfirmed} onConfirm={confirmBooking} />
+                    </div>
                   </div>}
                 </div>
                 <div className="flex gap-3 mt-6">
-                  {step > 0 && <button className="btn-ghost" onClick={() => setStep(step - 1)}>{t.backBtn}</button>}
-                  <button className="btn-primary" disabled={(step === 3 && !b.slot) || (step === 4 && (!b.name || !b.email))} onClick={() => step === 5 ? confirmBooking() : setStep(step + 1)}>{step === 5 ? t.confirmBooking : t.continueBtn}</button>
+                  {step > 0 && <ArcButton variant="ghost" onClick={() => setStep(step - 1)}>{t.backBtn}</ArcButton>}
+                  <ArcButton variant="primary" disabled={(step === 3 && !b.slot) || (step === 4 && (!b.name || !b.email))} onClick={() => step === 5 ? confirmBooking() : setStep(step + 1)}>{step === 5 ? t.confirmBooking : t.continueBtn}</ArcButton>
                 </div>
               </div>
             )}
@@ -576,8 +655,7 @@ export default function Home() {
               <div className="fadein mt-8 card rounded-2xl p-6" style={{ background: "var(--orchid)" }}>
                 <h3 className="font-display text-3xl font-semibold">{t.confirmedTitle}</h3>
                 <p className="mt-2">{sName(service)} · {LOCATIONS.find((l) => l.id === confirmed.location)?.name} · {fmtDay(confirmed.day)} {t.atWord} {confirmed.slot} · {confirmed.name} · {t.confirmedDeposit}</p>
-                <button className="btn-ghost mt-4" onClick={() => { setStep(0); setConfirmed(null); setB({ ...b, slot: "", name: "", email: "" }); }}>{t.bookAnother}</button>
-              </div>
+                <div className="mt-4"><ArcButton variant="ghost" onClick={() => { confirmGuard.current = false; setStep(0); setConfirmed(null); setB({ ...b, slot: "", name: "", email: "" }); }}>{t.bookAnother}</ArcButton></div>              </div>
             )}
           </div>
 
@@ -605,7 +683,7 @@ export default function Home() {
           <h2 className="font-display text-4xl sm:text-5xl font-semibold">{t.adminTitle}</h2>
           <p className="muted mt-3">{t.adminSub} <button className="font-semibold accent" onClick={() => setAdmin(admin.slice(0, 2))}>{t.resetData}</button></p>
           <div className="grid grid-cols-3 gap-4 mt-6 text-center">
-            <div className="card rounded-2xl py-6 lift"><div className="font-display text-3xl font-semibold"><CountUp end={admin.length} /></div><div className="muted text-sm">{t.statAppointments}</div></div>
+            <div className="card rounded-2xl py-6 lift"><div className="font-display text-3xl font-semibold"><ArcCounter value={admin.length} locale={lang === "de" ? "de-DE" : "en-US"} animateOnView /></div><div className="muted text-sm">{t.statAppointments}</div></div>
             <div className="card rounded-2xl py-6 lift"><div className="font-display text-3xl font-semibold">{fmtEUR(adminValue)}</div><div className="muted text-sm">{t.statBookedValue}</div></div>
             <div className="card rounded-2xl py-6 lift"><div className="font-display text-3xl font-semibold">4</div><div className="muted text-sm">{t.statLocations}</div></div>
           </div>
@@ -660,7 +738,7 @@ export default function Home() {
         <div className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:right-4 sm:max-w-md z-50 card rounded-2xl shadow-2xl p-5 pop-in">
           <p className="font-semibold">{t.cookieTitle}</p>
           <p className="muted text-sm mt-1">{t.cookieText}</p>
-          <div className="flex gap-2 mt-4"><button className="btn-primary !py-2 text-sm" onClick={() => setCookie("accepted")}>{t.acceptBtn}</button><button className="btn-ghost !py-2 text-sm" onClick={() => setCookie("rejected")}>{t.rejectBtn}</button></div>
+          <div className="flex gap-2 mt-4"><ArcButton variant="primary" size="md" onClick={() => setCookie("accepted")}>{t.acceptBtn}</ArcButton><ArcButton variant="ghost" size="md" onClick={() => setCookie("rejected")}>{t.rejectBtn}</ArcButton></div>
         </div>
       )}
     </div>
