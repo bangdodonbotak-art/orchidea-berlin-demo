@@ -14,6 +14,10 @@
   --line: #e8ddcb;
   --paypal: #003087;
   --paypal-2: #0070e0;
+  /* Luxury background tokens (v3.6) — one source of truth; no hex
+     literals for the background treatment scattered in components. */
+  --bg-glow: rgba(185, 151, 91, .16);
+  --gold-line: rgba(185, 151, 91, .45);
 }
 [data-theme="dark"] {
   --ivory: #171210;
@@ -23,16 +27,39 @@
   --card: #241b18;
   --line: #3d2f2a;
   --orchid: #3a2432;
+  --bg-glow: rgba(185, 151, 91, .12);
+  --gold-line: rgba(185, 151, 91, .35);
 }
 html { scroll-behavior: smooth; }
 /* Anchor targets must clear the sticky header (defect 5 fix, v3.1) */
 section[id] { scroll-margin-top: 96px; }
 body {
-  background: var(--ivory);
+  /* Luxury background (v3.6): warm ivory/charcoal base + a soft radial
+     gold glow at the top of the page + a barely-visible paper grain
+     (inline SVG turbulence noise at 0.035 opacity). Calm and expensive,
+     never busy; no purple gradients, no glassmorphism. Static, so
+     prefers-reduced-motion needs no override. Body text colours are
+     unchanged — contrast stays ≥4.5:1 in both themes. */
+  background-color: var(--ivory);
+  background-image:
+    radial-gradient(1100px 480px at 50% -140px, var(--bg-glow), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-repeat: no-repeat, repeat;
   color: var(--ink);
   font-family: "Jost", "Avenir Next", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+/* Soft radial gold glow at the top of a section (v3.6) — same tokens,
+   same structure in both themes. Apply to main content sections. */
+.lux-glow {
+  background-image: radial-gradient(900px 320px at 50% 0, var(--bg-glow), transparent 70%);
+  background-repeat: no-repeat;
+}
+/* Fine gold hairline divider between sections (v3.6). */
+.lux-divider {
+  height: 1px; border: 0;
+  background: linear-gradient(90deg, transparent, var(--gold-line) 20%, var(--gold-line) 80%, transparent);
 }
 .font-display { font-family: "Cormorant Garamond", Georgia, serif; }
 .accent { color: var(--magenta); }

@@ -22,7 +22,7 @@ export default function TeamPage() {
           </div>
         </div>
       </header>
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
+      <main className="lux-glow max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
         <p className="text-xs tracking-[0.25em] uppercase gold">{t.demoNote}</p>
         <h1 className="font-display text-5xl sm:text-6xl font-semibold mt-3">{t.teamTitle}</h1>
         <p className="muted mt-3 max-w-2xl">{t.teamSub}</p>
@@ -53,7 +53,8 @@ export default function TeamPage() {
         </p>
         <p className="mt-6"><a href="/" className="font-semibold accent hover:underline">← {lang === "de" ? "Zurück zur Startseite" : "Back to home"}</a></p>
       </main>
-      <footer className="border-t" style={{ borderColor: "var(--line)" }}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6"><hr className="lux-divider" aria-hidden="true" /></div>
+      <footer className="border-t" style={{ borderColor: "var(--gold-line)" }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row justify-between gap-4">
           <div><span className="font-display text-2xl font-semibold">Orchidea</span><p className="muted text-sm mt-1">{t.footerNote}</p></div>
           <div className="flex gap-6 text-sm"><a href="/services">{t.navServices}</a><a href="/impressum">Impressum</a><a href="/datenschutz">Datenschutz</a></div>

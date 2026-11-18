@@ -5,6 +5,7 @@ import {
   fmtEUR, type Service,
 } from "../lib/data";
 import { useLang } from "../lib/useLang";
+import ServiceCard from "../lib/ServiceCard";
 
 const DAYS = ["Fri 20 Nov", "Sat 21 Nov", "Mon 23 Nov", "Tue 24 Nov"];
 const SLOTS = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00", "18:30"];
@@ -136,6 +137,21 @@ export default function Home() {
 
   useEffect(() => { document.documentElement.setAttribute("data-theme", dark ? "dark" : "light"); }, [dark]);
 
+  /* v3.6: preselect a service chosen on /services — it stores the service
+     id in localStorage ("orchidea-service") before navigating to /#booking.
+     Same pattern as the orchidea-lang key (v3.4). Read once on mount,
+     then clear so a later visit starts from the default again. */
+  useEffect(() => {
+    try {
+      const id = localStorage.getItem("orchidea-service");
+      if (id && SERVICES.some((s) => s.id === id)) {
+        setB((prev) => ({ ...prev, service: id }));
+        localStorage.removeItem("orchidea-service");
+      }
+    } catch { /* storage unavailable — keep the default service */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /* Hero auto-advance (paused when reduced motion) */
   useEffect(() => {
     if (rm) return;
@@ -198,14 +214,10 @@ export default function Home() {
     },
   });
 
-  // Services layout: varied on purpose (defect 4 fix) — featured Signature
-  // Facial spans full width, Aroma Ritual spans full width image-right,
-  // the rest alternate tall (image top) / row (image left).
-  const serviceLayout = (s: Service): "featured" | "wide" | "tall" | "row" => {
-    if (s.id === "signature-facial") return "featured";
-    if (s.id === "aroma-ritual") return "wide";
-    return ["balayage", "aquafacial", "gel-pedicure"].includes(s.id) ? "tall" : "row";
-  };
+  // Services use the shared uniform card (v3.6, lib/ServiceCard.tsx) —
+  // one design on the homepage and on /services. The old varied layout
+  // (featured/wide/tall/row) is deleted on Dony's order: all 8 cards
+  // exactly the same size, symmetric over variety.
 
   return (
     <div className="min-h-screen">
@@ -369,93 +381,41 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Services — varied layout on purpose (no 8 identical cards) */}
-      <section id="services" className="max-w-6xl mx-auto px-4 sm:px-6 pb-14 sm:pb-20">
-        <div className="reveal flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h2 className="font-display text-4xl sm:text-5xl font-semibold">{t.servicesTitle}</h2>
-            <p className="muted mt-3">{t.servicesSub}</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
+      {/* Services — uniform grid (v3.6): one shared card design, all 8
+          cards exactly the same size — symmetric over variety, on Dony's
+          order. Desktop 4 cols x 2 rows, tablet 2 cols, mobile 1 col. */}
+      <section id="services" className="lux-glow max-w-6xl mx-auto px-4 sm:px-6 pb-14 sm:pb-20">
+        <div className="reveal text-center">
+          <h2 className="font-display text-4xl sm:text-5xl font-semibold">{t.servicesTitle}</h2>
+          <p className="muted mt-3 max-w-2xl mx-auto">{t.servicesSub}</p>
+          <div className="flex flex-wrap justify-center gap-2 mt-6">
             {(["All", "Hair", "Skin", "Nails", "Massage"] as const).map((c) => <button key={c} className={`chip ${cat === c ? "active" : ""}`} onClick={() => setCat(c)}>{catLabel(c)}</button>)}
           </div>
         </div>
-        <div key={cat} className="grid sm:grid-cols-2 items-start gap-4 mt-8">
-          {SERVICES.filter((s) => cat === "All" || s.cat === cat).map((s, i) => {
-            const layout = serviceLayout(s);
-            const price = (
-              <div className="flex items-end justify-between gap-2 mt-1">
-                <button className="text-sm font-semibold accent hover:underline" onClick={() => { setB({ ...b, service: s.id }); document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" }); }}>{t.bookCta}</button>
-                <div className="text-right shrink-0"><div className="font-display text-2xl font-semibold">{t.priceFrom} {fmtEUR(s.from)}</div><div className="muted text-xs">{t.priceUpTo} {fmtEUR(s.to)}</div></div>
-              </div>
-            );
-            const body = (
-              <div className="p-4 flex-1 flex flex-col gap-2">
-                <div>
-                  <p className="text-xs tracking-[0.2em] uppercase gold">{catLabel(s.cat)} · {s.mins} {t.minUnit}</p>
-                  <h3 className="font-display text-2xl font-semibold mt-1">{sName(s)}</h3>
-                  <p className="muted text-sm mt-1">{sDesc(s)}</p>
-                  {layout === "featured" && <p className="muted text-sm mt-2">{t.featuredText}</p>}
-                </div>
-                {price}
-              </div>
-            );
-            if (layout === "featured") {
-              return (
-                <article key={s.id} className="reveal visible card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row" style={{ borderColor: "var(--gold)", ["--d" as string]: `${i * 0.06}s` }}>
-                  {/* Image wrapper is `relative` + img absolute (v3.4): the img
-                      contributes NO height, so the card height = body height
-                      and no white band appears below the footer. Before, the
-                      img's intrinsic ratio forced the card taller than the
-                      body (the v3.3 gap survived on featured/wide cards). */}
-                  <div className="relative overflow-hidden h-56 sm:h-auto sm:w-2/5 shrink-0">
-                    <img src={s.img} alt={sAlt(s)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
-                  </div>
-                  {body}
-                </article>
-              );
-            }
-            if (layout === "wide") {
-              return (
-                <article key={s.id} className="reveal visible card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row-reverse" style={{ ["--d" as string]: `${i * 0.06}s` }}>
-                  {/* Same absolute-img fix as featured (v3.4). */}
-                  <div className="relative overflow-hidden h-56 sm:h-auto sm:w-2/5 shrink-0">
-                    <img src={s.img} alt={sAlt(s)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
-                  </div>
-                  {body}
-                </article>
-              );
-            }
-            if (layout === "tall") {
-              return (
-                <article key={s.id} className="reveal visible card rounded-2xl overflow-hidden lift flex flex-col" style={{ ["--d" as string]: `${i * 0.06}s` }}>
-                  <div className="overflow-hidden">
-                    <img src={s.img} alt={sAlt(s)} className="w-full aspect-[16/10] object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
-                  </div>
-                  {body}
-                </article>
-              );
-            }
-            return (
-              <article key={s.id} className="reveal visible card rounded-2xl overflow-hidden lift flex gap-0" style={{ ["--d" as string]: `${i * 0.06}s` }}>
-                {/* Row card (v3.4 root-cause fix): the old `h-full` img fell back
-                    to its intrinsic aspect ratio and forced the card taller
-                    than the body — the white band below the footer. With the
-                    img absolute, it contributes no height; card height =
-                    body height, so the footer sits right under the price. */}
-                <div className="relative overflow-hidden w-28 sm:w-36 shrink-0">
-                  <img src={s.img} alt={sAlt(s)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" />
-                </div>
-                {body}
-              </article>
-            );
-          })}
+        <div key={cat} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-stretch gap-4 sm:gap-5 mt-8">
+          {SERVICES.filter((s) => cat === "All" || s.cat === cat).map((s, i) => (
+            <ServiceCard
+              key={s.id}
+              s={s}
+              name={sName(s)}
+              desc={sDesc(s)}
+              alt={sAlt(s)}
+              catLabel={catLabel(s.cat)}
+              priceFrom={t.priceFrom}
+              priceUpTo={t.priceUpTo}
+              minUnit={t.minUnit}
+              bookCta={t.bookCta}
+              index={i}
+              onBook={() => { setB({ ...b, service: s.id }); document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" }); }}
+            />
+          ))}
         </div>
-        <p className="reveal mt-6"><a href="/services" className="font-semibold accent hover:underline">{lang === "de" ? "Alle Leistungen ansehen →" : "See all services →"}</a></p>
+        <p className="reveal mt-8 text-center"><a href="/services" className="font-semibold accent hover:underline">{lang === "de" ? "Alle Leistungen ansehen →" : "See all services →"}</a></p>
       </section>
 
       {/* Team — click a specialist to pre-select them in booking */}
-      <section id="team" className="max-w-6xl mx-auto px-4 sm:px-6 pb-14 sm:pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6"><hr className="lux-divider" aria-hidden="true" /></div>
+      <section id="team" className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
         <h2 className="reveal font-display text-4xl sm:text-5xl font-semibold">{t.teamTitle}</h2>
         <p className="reveal muted mt-3">{t.teamSub}</p>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
@@ -535,7 +495,7 @@ export default function Home() {
       </section>
 
       {/* Booking — animated progress, clickable steps, live summary, PayPal only */}
-      <section id="booking" className="max-w-6xl mx-auto px-4 sm:px-6 pb-14 sm:pb-20">
+      <section id="booking" className="lux-glow max-w-6xl mx-auto px-4 sm:px-6 pb-14 sm:pb-20">
         <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
           <div className="reveal card rounded-3xl p-6 sm:p-10" style={{ borderColor: "var(--gold)" }}>
             <p className="text-xs tracking-[0.25em] uppercase gold">{t.badgeSimulated}</p>
@@ -657,7 +617,7 @@ export default function Home() {
         <p className="reveal muted text-sm mt-4">{t.cancelNote}</p>
       </section>
 
-      <footer className="border-t" style={{ borderColor: "var(--line)" }}>
+      <footer className="border-t" style={{ borderColor: "var(--gold-line)" }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row justify-between gap-4">
           <div><span className="font-display text-2xl font-semibold">Orchidea</span><p className="muted text-sm mt-1">{t.footerNote}</p></div>
           <div className="flex gap-6 text-sm"><a href="/services">{t.navServices}</a><a href="/team">{t.navTeam}</a><a href="/impressum">Impressum</a><a href="/datenschutz">Datenschutz</a><a href="#booking">{t.book}</a></div>
