@@ -36,7 +36,17 @@ export const SERVICES: Service[] = [
   { id: "balayage", cat: "Hair", name: "Balayage & Gloss", nameDe: "Balayage & Gloss", desc: "Soft, low-maintenance colour with a mirror gloss finish.", descDe: "Sanfte, pflegeleichte Farbe mit Spiegelglanz-Finish.", mins: 150, from: 130, to: 180, img: U("photo-1492106087820-71f1a00d2b11"), imgAlt: "Long wavy hair with glossy lavender colour" },
   { id: "cut-finish", cat: "Hair", name: "Cut & Finish", nameDe: "Haarschnitt & Finish", desc: "Precision cut, wash and blow-dry, styled to your face.", descDe: "Präziser Schnitt, Wäsche und Föhnen — auf Ihr Gesicht abgestimmt.", mins: 60, from: 45, to: 68, img: U("photo-1562322140-8baeececf3df"), imgAlt: "Stylist blow-drying a client's hair in a bright salon" },
   { id: "signature-facial", cat: "Skin", name: "Signature Facial", nameDe: "Signature-Gesichtsbehandlung", desc: "Deep cleanse, massage and glow mask — our most-booked ritual.", descDe: "Tiefenreinigung, Massage und Glow-Maske — unser beliebtestes Ritual.", mins: 75, from: 65, to: 89, img: U("photo-1616394584738-fc6e612e71b9"), imgAlt: "Facial mask being applied with a brush" },
-  { id: "aquafacial", cat: "Skin", name: "Aquafacial Glow", nameDe: "Aquafacial Glow", desc: "Hydra-cleanse and infusion for instantly plumped skin.", descDe: "Hydra-Reinigung und Infusion für sofort prallere Haut.", mins: 60, from: 85, to: 149, img: U("photo-1570172619644-dfd03ed5d881"), imgAlt: "Facial treatment close-up" },
+  // Aquafacial photo (v3.2): photo-1552693673 — gloved hands guiding a metal
+  // handpiece over a client's cheek, clinical setting (visually verified
+  // 18 Nov 2026). A device-based facial treatment, clearer than the old
+  // generic facial close-up. CAVEAT: the tool is microdermabrasion-style,
+  // not visibly water-based — no true HydraFacial-wand photo with a
+  // recoverable images.unsplash.com URL was found (the Look Studio /
+  // Unsplash hydra-wand photo exists but Unsplash HTML is blocked, so its
+  // CDN URL could not be recovered; 6 other Unsplash candidates checked
+  // visually were wrong subjects — makeup palette, branded product shots,
+  // massage). Real client photos replace this at launch.
+  { id: "aquafacial", cat: "Skin", name: "Aquafacial Glow", nameDe: "Aquafacial Glow", desc: "Hydra-cleanse and infusion for instantly plumped skin.", descDe: "Hydra-Reinigung und Infusion für sofort prallere Haut.", mins: 60, from: 85, to: 149, img: U("photo-1552693673-1bf958298935"), imgAlt: "Device facial treatment — gloved hands guiding a handpiece over the cheek" },
   { id: "shellac", cat: "Nails", name: "Shellac Manicure", nameDe: "Shellac-Maniküre", desc: "Chip-free colour for up to three weeks, with cuticle care.", descDe: "Splitterfreie Farbe für bis zu drei Wochen, inklusive Nagelhautpflege.", mins: 60, from: 38, to: 53, img: U("photo-1604654894610-df63bc536371"), imgAlt: "Manicured hand with black and tortoiseshell nails" },
   { id: "gel-pedicure", cat: "Nails", name: "Gel Pedicure", nameDe: "Gel-Pediküre", desc: "Spa soak, shaping and gel finish — barefoot-ready.", descDe: "Fußbad, Formen und Gel-Finish — bereit für barfuß.", mins: 75, from: 48, to: 65, img: U("photo-1519415510236-718bdfcd89c8"), imgAlt: "Feet soaking in a spa foot bath with frangipani flowers" },
   { id: "deep-tissue", cat: "Massage", name: "Deep Tissue Massage", nameDe: "Tiefengewebsmassage", desc: "Slow, firm work for shoulders, neck and back.", descDe: "Langsame, feste Arbeit für Schultern, Nacken und Rücken.", mins: 60, from: 69, to: 99, img: U("photo-1519823551278-64ac92734fb1"), imgAlt: "Therapist massaging a client's back" },
@@ -77,10 +87,12 @@ export const PAYMENT_METHODS = [
 export const DEPOSIT_EUR = 20;
 
 // Sample testimonials — illustration only, not real reviews.
+// textDe: German translation of the sample quote (v3.2 — DE completeness).
+// serviceId links the quote to a service so the service name translates too.
 export const TESTIMONIALS = [
-  { name: "Anna K.", service: "Balayage & Gloss", text: "I booked on my phone in a minute and walked straight in — no waiting room, no queue." },
-  { name: "Julia M.", service: "Signature Facial", text: "The room, the light, the calm. It felt like a small hotel spa, not a walk-in salon." },
-  { name: "Sara L.", service: "Shellac Manicure", text: "My slot was really mine. Deposit paid online, reminder the day before, done." },
+  { name: "Anna K.", serviceId: "balayage", text: "I booked on my phone in a minute and walked straight in — no waiting room, no queue.", textDe: "Ich habe in einer Minute von meinem Handy aus gebucht und bin direkt reingegangen — kein Wartezimmer, keine Schlange." },
+  { name: "Julia M.", serviceId: "signature-facial", text: "The room, the light, the calm. It felt like a small hotel spa, not a walk-in salon.", textDe: "Der Raum, das Licht, die Ruhe. Es fühlte sich an wie ein kleines Hotel-Spa, nicht wie ein Walk-in-Salon." },
+  { name: "Sara L.", serviceId: "shellac", text: "My slot was really mine. Deposit paid online, reminder the day before, done.", textDe: "Mein Termin war wirklich meiner. Anzahlung online bezahlt, Erinnerung am Tag vorher, fertig." },
 ];
 
 // Ritual Finder options — ids drive the logic, labels are translated.
@@ -100,6 +112,29 @@ export const STEP_NAMES: Record<Lang, string[]> = {
   en: ["Location", "Service", "Specialist", "Slot", "Details", "Deposit"],
   de: ["Standort", "Leistung", "Spezialist", "Termin", "Angaben", "Anzahlung"],
 };
+
+// Category / filter labels — translated (v3.2 DE completeness). Keys are the
+// English ids used in state; values are the display labels per language.
+export const CAT_LABELS: Record<Lang, Record<string, string>> = {
+  en: { All: "All", Hair: "Hair", Skin: "Skin", Nails: "Nails", Massage: "Massage", Rooms: "Rooms", Treatments: "Treatments", Details: "Details" },
+  de: { All: "Alle", Hair: "Haare", Skin: "Haut", Nails: "Nägel", Massage: "Massage", Rooms: "Räume", Treatments: "Behandlungen", Details: "Details" },
+};
+
+// Booking-day labels — internal ids stay English ("Fri 20 Nov"), display is
+// translated (v3.2). 20 Nov 2026 is a Friday, 21 Sat, 23 Mon, 24 Tue.
+export const DAY_LABELS: Record<Lang, Record<string, string>> = {
+  en: { "Fri 20 Nov": "Fri 20 Nov", "Sat 21 Nov": "Sat 21 Nov", "Mon 23 Nov": "Mon 23 Nov", "Tue 24 Nov": "Tue 24 Nov" },
+  de: { "Fri 20 Nov": "Fr., 20. Nov.", "Sat 21 Nov": "Sa., 21. Nov.", "Mon 23 Nov": "Mo., 23. Nov.", "Tue 24 Nov": "Di., 24. Nov." },
+};
+
+// Proposal cards — $ amounts stay as quoted USD market ranges (v3.2: titles
+// + body translated to German; the EUR footnote lives in T.proposalFootnote).
+export type ProposalCard = { title: string; titleDe: string; price: string; body: string; bodyDe: string };
+export const PROPOSAL_CARDS: ProposalCard[] = [
+  { title: "Demo website", titleDe: "Demo-Website", price: "$500–$2,000", body: "This demo: 5–7 pages, DE/EN shell, simulated booking + admin demo.", bodyDe: "Diese Demo: 5–7 Seiten, DE/EN, simulierte Buchung + Admin-Demo." },
+  { title: "Full build — freelancer", titleDe: "Vollversion — Freelancer", price: "$1,700–$5,750", body: "Live booking, PayPal payments, reminders, admin. (One estimator puts it $2,900–$8,700.)", bodyDe: "Echte Buchung, PayPal-Zahlungen, Erinnerungen, Admin. (Ein Schätzer nennt $2.900–$8.700.)" },
+  { title: "Full build — agency", titleDe: "Vollversion — Agentur", price: "$5,750–$16,600", body: "Strategy, brand design, copy, integrations, multi-location.", bodyDe: "Strategie, Markendesign, Texte, Integrationen, mehrere Standorte." },
+];
 
 export const T: Record<Lang, Record<string, string>> = {
   en: {
@@ -156,6 +191,17 @@ export const T: Record<Lang, Record<string, string>> = {
     stickyCta: "Book now — from",
     cookieTitle: "Cookies — demo", cookieText: "This demo sets no tracking cookies. Accept or reject — both work the same here.",
     acceptBtn: "Accept", rejectBtn: "Reject",
+    themeLight: "☀ Light", themeDark: "☾ Dark",
+    priceFrom: "from", priceUpTo: "up to", minUnit: "min",
+    badgeSimulated: "Simulated booking · Demo only",
+    payWithPayPal: "Pay with PayPal",
+    confirmedDeposit: "simulated deposit €20 via PayPal",
+    zeroMin: "0 min",
+    heroPhoto: "Hero photo", openPhoto: "Open photo", closeBtn: "Close",
+    prevPhoto: "Previous photo", nextPhoto: "Next photo",
+    prevTesti: "Previous testimonial", nextTesti: "Next testimonial", testiLabel: "Testimonial",
+    daylightAria: "Daylight to evening", locationLabel: "Location", serviceLabel: "Service",
+    switchLang: "Switch language", toggleTheme: "Toggle theme", atWord: "at",
   },
   de: {
     navServices: "Leistungen", navTeam: "Team", navGallery: "Galerie", navVisit: "Besuch", navProposal: "Angebot",
@@ -211,6 +257,17 @@ export const T: Record<Lang, Record<string, string>> = {
     stickyCta: "Jetzt buchen — ab",
     cookieTitle: "Cookies — Demo", cookieText: "Diese Demo setzt keine Tracking-Cookies. Annehmen oder Ablehnen — beides funktioniert hier gleich.",
     acceptBtn: "Annehmen", rejectBtn: "Ablehnen",
+    themeLight: "☀ Hell", themeDark: "☾ Dunkel",
+    priceFrom: "ab", priceUpTo: "bis", minUnit: "Min.",
+    badgeSimulated: "Simulierte Buchung · nur Demo",
+    payWithPayPal: "Mit PayPal zahlen",
+    confirmedDeposit: "simulierte Anzahlung €20 via PayPal",
+    zeroMin: "0 Min.",
+    heroPhoto: "Hero-Foto", openPhoto: "Foto öffnen", closeBtn: "Schließen",
+    prevPhoto: "Vorheriges Foto", nextPhoto: "Nächstes Foto",
+    prevTesti: "Vorherige Bewertung", nextTesti: "Nächste Bewertung", testiLabel: "Bewertung",
+    daylightAria: "Tageslicht bis Abend", locationLabel: "Standort", serviceLabel: "Leistung",
+    switchLang: "Sprache wechseln", toggleTheme: "Thema wechseln", atWord: "um",
   },
 };
 

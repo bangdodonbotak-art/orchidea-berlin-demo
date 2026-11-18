@@ -1,13 +1,23 @@
 "use client";
 import { useState } from "react";
-import { SERVICES, T, fmtEUR, type Lang } from "../../lib/data";
+import { CAT_LABELS, SERVICES, T, fmtEUR, type Lang, type Service } from "../../lib/data";
 
-/* /services — full services & prices page (v3.1, defect 6).
-   Reuses lib/data.ts, same design system, DE/EN toggle, DEMO-labelled. */
+/* /services — full services & prices page (v3.1, defect 6; v3.2: varied
+   layout like the homepage — featured Signature Facial full-width, mixed
+   tall/row cards, no dead empty space — and full DE translation). */
 export default function ServicesPage() {
   const [lang, setLang] = useState<Lang>("en");
   const t = T[lang];
   const [cat, setCat] = useState<"All" | "Hair" | "Skin" | "Nails" | "Massage">("All");
+  const catLabel = (c: string) => CAT_LABELS[lang][c] ?? c;
+  const sName = (s: Service) => (lang === "de" ? s.nameDe : s.name);
+  const sDesc = (s: Service) => (lang === "de" ? s.descDe : s.desc);
+  // Same varied layout as the homepage services (defect 4 fix).
+  const serviceLayout = (s: Service): "featured" | "wide" | "tall" | "row" => {
+    if (s.id === "signature-facial") return "featured";
+    if (s.id === "aroma-ritual") return "wide";
+    return ["balayage", "aquafacial", "gel-pedicure"].includes(s.id) ? "tall" : "row";
+  };
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 backdrop-blur border-b" style={{ background: "color-mix(in srgb, var(--ivory) 82%, transparent)", borderColor: "var(--line)" }}>
@@ -17,7 +27,7 @@ export default function ServicesPage() {
             <span className="hidden sm:inline text-xs tracking-[0.25em] uppercase muted">Berlin</span>
           </a>
           <div className="flex items-center gap-2">
-            <button className="chip !py-1.5" onClick={() => setLang(lang === "en" ? "de" : "en")} aria-label="Switch language">{lang === "en" ? "DE" : "EN"}</button>
+            <button className="chip !py-1.5" onClick={() => setLang(lang === "en" ? "de" : "en")} aria-label={t.switchLang}>{lang === "en" ? "DE" : "EN"}</button>
             <a href="/#booking" className="btn-primary !py-2 !px-4 text-sm">{t.book}</a>
           </div>
         </div>
@@ -28,31 +38,71 @@ export default function ServicesPage() {
         <p className="muted mt-3 max-w-2xl">{t.servicesSub}</p>
         <div className="flex flex-wrap gap-2 mt-8">
           {(["All", "Hair", "Skin", "Nails", "Massage"] as const).map((c) => (
-            <button key={c} className={`chip ${cat === c ? "active" : ""}`} onClick={() => setCat(c)}>{c}</button>
+            <button key={c} className={`chip ${cat === c ? "active" : ""}`} onClick={() => setCat(c)}>{catLabel(c)}</button>
           ))}
         </div>
-        <div className="mt-8 space-y-4">
-          {SERVICES.filter((s) => cat === "All" || s.cat === cat).map((s) => (
-            <article key={s.id} className="card rounded-2xl overflow-hidden lift flex flex-col sm:flex-row">
-              <div className="overflow-hidden sm:w-64 shrink-0">
-                <img src={s.img} alt={s.imgAlt} className="w-full h-48 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+        <div key={cat} className="grid sm:grid-cols-2 gap-4 mt-8">
+          {SERVICES.filter((s) => cat === "All" || s.cat === cat).map((s, i) => {
+            const layout = serviceLayout(s);
+            const price = (
+              <div className="flex items-end justify-between gap-2">
+                <a href="/#booking" className="text-sm font-semibold accent hover:underline">{t.bookCta}</a>
+                <div className="text-right shrink-0">
+                  <div className="font-display text-2xl font-semibold">{t.priceFrom} {fmtEUR(s.from)}</div>
+                  <div className="muted text-xs">{t.priceUpTo} {fmtEUR(s.to)}</div>
+                </div>
               </div>
-              <div className="p-6 flex-1 flex flex-col justify-between gap-3">
+            );
+            const body = (
+              <div className="p-5 flex-1 flex flex-col justify-between gap-2">
                 <div>
-                  <p className="text-xs tracking-[0.2em] uppercase gold">{s.cat} · {s.mins} min</p>
-                  <h2 className="font-display text-3xl font-semibold mt-1">{lang === "de" ? s.nameDe : s.name}</h2>
-                  <p className="muted mt-2">{lang === "de" ? s.descDe : s.desc}</p>
+                  <p className="text-xs tracking-[0.2em] uppercase gold">{catLabel(s.cat)} · {s.mins} {t.minUnit}</p>
+                  <h2 className="font-display text-2xl font-semibold mt-1">{sName(s)}</h2>
+                  <p className="muted text-sm mt-1">{sDesc(s)}</p>
+                  {layout === "featured" && <p className="muted text-sm mt-2">{t.featuredText}</p>}
                 </div>
-                <div className="flex items-end justify-between gap-3">
-                  <a href="/#booking" className="text-sm font-semibold accent hover:underline">{t.bookCta}</a>
-                  <div className="text-right shrink-0">
-                    <div className="font-display text-3xl font-semibold">from {fmtEUR(s.from)}</div>
-                    <div className="muted text-sm">up to {fmtEUR(s.to)}</div>
-                  </div>
-                </div>
+                {price}
               </div>
-            </article>
-          ))}
+            );
+            if (layout === "featured") {
+              return (
+                <article key={s.id} className="card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row" style={{ borderColor: "var(--gold)" }}>
+                  <div className="overflow-hidden sm:w-2/5 shrink-0">
+                    <img src={s.img} alt={s.imgAlt} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                  </div>
+                  {body}
+                </article>
+              );
+            }
+            if (layout === "wide") {
+              return (
+                <article key={s.id} className="card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row-reverse">
+                  <div className="overflow-hidden sm:w-2/5 shrink-0">
+                    <img src={s.img} alt={s.imgAlt} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                  </div>
+                  {body}
+                </article>
+              );
+            }
+            if (layout === "tall") {
+              return (
+                <article key={s.id} className="card rounded-2xl overflow-hidden lift flex flex-col">
+                  <div className="overflow-hidden">
+                    <img src={s.img} alt={s.imgAlt} className="w-full aspect-[16/10] object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                  </div>
+                  {body}
+                </article>
+              );
+            }
+            return (
+              <article key={s.id} className="card rounded-2xl overflow-hidden lift flex gap-0">
+                <div className="overflow-hidden w-28 sm:w-36 shrink-0">
+                  <img src={s.img} alt={s.imgAlt} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" />
+                </div>
+                {body}
+              </article>
+            );
+          })}
         </div>
         <p className="muted text-sm mt-8">
           {lang === "de"

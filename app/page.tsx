@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  DEPOSIT_EUR, GALLERY, HERO_IMAGES, LOCATIONS, MOOD_OPTIONS, PAYMENT_METHODS, SERVICES, STAFF, STEP_NAMES, T, TESTIMONIALS, TIME_OPTIONS,
+  CAT_LABELS, DAY_LABELS, DEPOSIT_EUR, GALLERY, HERO_IMAGES, LOCATIONS, MOOD_OPTIONS, PAYMENT_METHODS, PROPOSAL_CARDS, SERVICES, STAFF, STEP_NAMES, T, TESTIMONIALS, TIME_OPTIONS,
   fmtEUR, type Lang, type Service,
 } from "../lib/data";
 
@@ -121,6 +121,10 @@ export default function Home() {
   const gAlt = (g: (typeof GALLERY)[number]) => (lang === "de" ? g.altDe : g.alt);
   const staffRole = (s: (typeof STAFF)[number]) => (lang === "de" ? s.roleDe : s.role);
   const locHours = (l: (typeof LOCATIONS)[number]) => (lang === "de" ? l.hoursDe : l.hours);
+  const catLabel = (c: string) => CAT_LABELS[lang][c] ?? c;
+  const fmtDay = (d: string) => DAY_LABELS[lang][d] ?? d;
+  const testiText = (q: (typeof TESTIMONIALS)[number]) => (lang === "de" ? q.textDe : q.text);
+  const testiService = (q: (typeof TESTIMONIALS)[number]) => { const s = SERVICES.find((x) => x.id === q.serviceId); return s ? sName(s) : ""; };
   const stepNames = STEP_NAMES[lang];
   const adminValue = admin.reduce((sum, a) => sum + (SERVICES.find((s) => s.id === a.service)?.from ?? 0), 0);
   useReveal();
@@ -221,8 +225,8 @@ export default function Home() {
             <a href="/services" className="hover:text-[var(--magenta)] transition-colors">{t.navServices}</a><a href="/team" className="hover:text-[var(--magenta)] transition-colors">{t.navTeam}</a><a href="#gallery" className="hover:text-[var(--magenta)] transition-colors">{t.navGallery}</a><a href="#visit" className="hover:text-[var(--magenta)] transition-colors">{t.navVisit}</a><a href="#proposal" className="hover:text-[var(--magenta)] transition-colors">{t.navProposal}</a>
           </nav>
           <div className="flex items-center gap-2">
-            <button className="chip !py-1.5" onClick={() => setLang(lang === "en" ? "de" : "en")} aria-label="Switch language">{lang === "en" ? "DE" : "EN"}</button>
-            <button className="chip !py-1.5" onClick={() => setDark(!dark)} aria-label="Toggle theme">{dark ? "☀ Light" : "☾ Dark"}</button>
+            <button className="chip !py-1.5" onClick={() => setLang(lang === "en" ? "de" : "en")} aria-label={t.switchLang}>{lang === "en" ? "DE" : "EN"}</button>
+            <button className="chip !py-1.5" onClick={() => setDark(!dark)} aria-label={t.toggleTheme}>{dark ? t.themeLight : t.themeDark}</button>
             <a href="#booking" className="btn-primary !py-2 !px-4 text-sm hidden sm:inline-block">{t.book}</a>
           </div>
         </div>
@@ -244,16 +248,20 @@ export default function Home() {
             </div>
           ))}
         </div>
+        {/* Hero scrim (v3.2): vertical gradient + LEFT scrim so the headline
+            stays readable where it crosses bright objects (e.g. the white
+            bottle on slide 1) — plus text-shadow on the headline copy. */}
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(20,10,14,.45), rgba(20,10,14,.15) 45%, rgba(20,10,14,.72))" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(20,10,14,.62) 0%, rgba(20,10,14,.38) 55%, rgba(20,10,14,0) 85%)" }} />
         <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(560px circle at ${glow.x}% ${glow.y}%, rgba(255,214,140,.20), transparent 65%)`, transition: "background .3s ease" }} />
         <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 flex flex-col justify-end pb-16 sm:pb-20">
           <p className="fadein text-xs sm:text-sm tracking-[0.3em] uppercase mb-4" style={{ color: "var(--gold-soft)" }}>{t.heroKicker}</p>
-          <h1 className="font-display font-semibold leading-[0.95] text-[clamp(3rem,9vw,6.5rem)] max-w-3xl" aria-label={t.heroTitle}>
+          <h1 className="font-display font-semibold leading-[0.95] text-[clamp(3rem,9vw,6.5rem)] max-w-3xl" aria-label={t.heroTitle} style={{ textShadow: "0 2px 28px rgba(0,0,0,.55), 0 1px 6px rgba(0,0,0,.5)" }}>
             {heroWords.map((w, i) => (
               <span key={i} className="word-rise" aria-hidden="true"><span style={{ ["--d" as string]: `${0.15 + i * 0.12}s` }}>{w}&nbsp;</span></span>
             ))}
           </h1>
-          <p className="fadein mt-5 max-w-xl text-base sm:text-lg text-white/85" style={{ animationDelay: ".5s" }}>{t.heroSub}</p>
+          <p className="fadein mt-5 max-w-xl text-base sm:text-lg text-white/85" style={{ animationDelay: ".5s", textShadow: "0 1px 12px rgba(0,0,0,.6)" }}>{t.heroSub}</p>
           <div className="fadein mt-8 flex flex-wrap gap-3" style={{ animationDelay: ".65s" }}>
             <a href="#booking" className="btn-primary">{t.heroCta}</a>
             <a href="#rituals" className="btn-ghost !border-white/50 text-white">{t.heroSecondary}</a>
@@ -262,7 +270,7 @@ export default function Home() {
             <p className="text-xs text-white/70">{t.heroLocations}</p>
             <div className="flex items-center gap-2" role="tablist" aria-label="Hero photos">
               {HERO_IMAGES.map((src, i) => (
-                <button key={src} role="tab" aria-selected={i === heroIdx} aria-label={`Hero photo ${i + 1}`} onClick={() => setHeroIdx(i)} className={`rounded-full transition-all duration-300 ${i === heroIdx ? "w-8 h-2" : "w-2 h-2 bg-white/50 hover:bg-white"}`} style={i === heroIdx ? { background: "var(--gold)" } : {}} />
+                <button key={src} role="tab" aria-selected={i === heroIdx} aria-label={`${t.heroPhoto} ${i + 1}`} onClick={() => setHeroIdx(i)} className={`rounded-full transition-all duration-300 ${i === heroIdx ? "w-8 h-2" : "w-2 h-2 bg-white/50 hover:bg-white"}`} style={i === heroIdx ? { background: "var(--gold)" } : {}} />
               ))}
             </div>
           </div>
@@ -278,7 +286,7 @@ export default function Home() {
         <div className="marquee-track">
           {[0, 1].map((dup) => (
             <span key={dup} className="flex shrink-0 items-center gap-6 pr-6 font-display text-lg sm:text-xl" style={{ color: "var(--ink-soft)" }}>
-              {SERVICES.map((s) => <span key={`${dup}-${s.id}`} className="whitespace-nowrap">{sName(s)} <span className="gold-shimmer font-semibold">from {fmtEUR(s.from)}</span> <span className="accent">✦</span></span>)}
+              {SERVICES.map((s) => <span key={`${dup}-${s.id}`} className="whitespace-nowrap">{sName(s)} <span className="gold-shimmer font-semibold">{t.priceFrom} {fmtEUR(s.from)}</span> <span className="accent">✦</span></span>)}
             </span>
           ))}
         </div>
@@ -287,10 +295,10 @@ export default function Home() {
       {/* Quick booking bar */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 -mt-8 relative z-20">
         <div className="card rounded-2xl shadow-xl p-4 sm:p-5 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center pop-in">
-          <select className="flex-1 rounded-xl border px-3 py-3 bg-transparent" style={{ borderColor: "var(--line)" }} value={b.location} onChange={(e) => setB({ ...b, location: e.target.value })} aria-label="Location">
+          <select className="flex-1 rounded-xl border px-3 py-3 bg-transparent" style={{ borderColor: "var(--line)" }} value={b.location} onChange={(e) => setB({ ...b, location: e.target.value })} aria-label={t.locationLabel}>
             {LOCATIONS.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
           </select>
-          <select className="flex-1 rounded-xl border px-3 py-3 bg-transparent" style={{ borderColor: "var(--line)" }} value={b.service} onChange={(e) => setB({ ...b, service: e.target.value })} aria-label="Service">
+          <select className="flex-1 rounded-xl border px-3 py-3 bg-transparent" style={{ borderColor: "var(--line)" }} value={b.service} onChange={(e) => setB({ ...b, service: e.target.value })} aria-label={t.serviceLabel}>
             {SERVICES.map((s) => <option key={s.id} value={s.id}>{sName(s)} · {fmtEUR(s.from)}+</option>)}
           </select>
           <a href="#booking" className="btn-primary text-center">{t.quickCta}</a>
@@ -303,7 +311,7 @@ export default function Home() {
           <div className="card rounded-2xl py-8 px-3 lift"><div className="font-display text-4xl sm:text-5xl font-semibold accent"><CountUp end={4} /></div><div className="muted text-sm mt-2">{t.statParlours}</div></div>
           <div className="card rounded-2xl py-8 px-3 lift"><div className="font-display text-4xl sm:text-5xl font-semibold accent"><CountUp end={12} suffix="+" /></div><div className="muted text-sm mt-2">{t.statSpecialists}</div></div>
           <div className="card rounded-2xl py-8 px-3 lift"><div className="font-display text-4xl sm:text-5xl font-semibold accent"><CountUp end={8} /></div><div className="muted text-sm mt-2">{t.statRituals}</div></div>
-          <div className="card rounded-2xl py-8 px-3 lift"><div className="font-display text-4xl sm:text-5xl font-semibold accent">0 min</div><div className="muted text-sm mt-2">{t.statWaiting}</div></div>
+          <div className="card rounded-2xl py-8 px-3 lift"><div className="font-display text-4xl sm:text-5xl font-semibold accent">{t.zeroMin}</div><div className="muted text-sm mt-2">{t.statWaiting}</div></div>
         </div>
       </section>
 
@@ -326,7 +334,7 @@ export default function Home() {
               <div>
                 <p className="text-xs tracking-[0.25em] uppercase gold">{surprise ? t.yourSurpriseRitual : t.yourRitual}</p>
                 <h3 className="font-display text-3xl font-semibold mt-1">{sName(ritual)}</h3>
-                <p className="muted mt-1">{sDesc(ritual)} · {ritual.mins} min · from {fmtEUR(ritual.from)}</p>
+                <p className="muted mt-1">{sDesc(ritual)} · {ritual.mins} {t.minUnit} · {t.priceFrom} {fmtEUR(ritual.from)}</p>
               </div>
               <a href="#booking" onClick={() => setB({ ...b, service: ritual.id })} className="btn-primary whitespace-nowrap">{t.bookRitual}</a>
             </div>
@@ -348,7 +356,7 @@ export default function Home() {
             <p className="text-white/80 mt-1 text-sm sm:text-base">{t.ambienceSub}</p>
             <div className="mt-4 flex items-center gap-3 max-w-md">
               <span className="text-xs">{t.daylightLabel}</span>
-              <input type="range" min={0} max={100} value={ambience} onChange={(e) => { setPlaying(false); setAmbience(Number(e.target.value)); }} className="flex-1 accent-pink-700" aria-label="Daylight to evening" />
+              <input type="range" min={0} max={100} value={ambience} onChange={(e) => { setPlaying(false); setAmbience(Number(e.target.value)); }} className="flex-1 accent-pink-700" aria-label={t.daylightAria} />
               <span className="text-xs">{t.eveningLabel}</span>
               <button className="chip !py-1 !px-3 !text-xs !text-white !border-white/60 shrink-0" onClick={() => setPlaying(!playing)}>{playing ? t.pauseDay : t.playDay}</button>
             </div>
@@ -364,7 +372,7 @@ export default function Home() {
             <p className="muted mt-3">{t.servicesSub}</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {(["All", "Hair", "Skin", "Nails", "Massage"] as const).map((c) => <button key={c} className={`chip ${cat === c ? "active" : ""}`} onClick={() => setCat(c)}>{c}</button>)}
+            {(["All", "Hair", "Skin", "Nails", "Massage"] as const).map((c) => <button key={c} className={`chip ${cat === c ? "active" : ""}`} onClick={() => setCat(c)}>{catLabel(c)}</button>)}
           </div>
         </div>
         <div key={cat} className="grid sm:grid-cols-2 gap-4 mt-8">
@@ -373,13 +381,13 @@ export default function Home() {
             const price = (
               <div className="flex items-end justify-between gap-2">
                 <button className="text-sm font-semibold accent hover:underline" onClick={() => { setB({ ...b, service: s.id }); document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" }); }}>{t.bookCta}</button>
-                <div className="text-right shrink-0"><div className="font-display text-2xl font-semibold">from {fmtEUR(s.from)}</div><div className="muted text-xs">up to {fmtEUR(s.to)}</div></div>
+                <div className="text-right shrink-0"><div className="font-display text-2xl font-semibold">{t.priceFrom} {fmtEUR(s.from)}</div><div className="muted text-xs">{t.priceUpTo} {fmtEUR(s.to)}</div></div>
               </div>
             );
             const body = (
               <div className="p-5 flex-1 flex flex-col justify-between gap-2">
                 <div>
-                  <p className="text-xs tracking-[0.2em] uppercase gold">{s.cat} · {s.mins} min</p>
+                  <p className="text-xs tracking-[0.2em] uppercase gold">{catLabel(s.cat)} · {s.mins} {t.minUnit}</p>
                   <h3 className="font-display text-2xl font-semibold mt-1">{sName(s)}</h3>
                   <p className="muted text-sm mt-1">{sDesc(s)}</p>
                   {layout === "featured" && <p className="muted text-sm mt-2">{t.featuredText}</p>}
@@ -461,12 +469,12 @@ export default function Home() {
             <p className="muted mt-3">{t.gallerySub}</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {(["All", "Rooms", "Treatments", "Details"] as const).map((c) => <button key={c} className={`chip ${gcat === c ? "active" : ""}`} onClick={() => setGcat(c)}>{c}</button>)}
+            {(["All", "Rooms", "Treatments", "Details"] as const).map((c) => <button key={c} className={`chip ${gcat === c ? "active" : ""}`} onClick={() => setGcat(c)}>{catLabel(c)}</button>)}
           </div>
         </div>
         <div key={gcat} className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-8">
           {filteredGallery.map((g, i) => (
-            <button key={g.src} className="pop-in overflow-hidden rounded-2xl text-left group" style={{ animationDelay: `${i * 0.07}s` }} onClick={() => setLightbox(i)} aria-label={`Open photo ${i + 1}: ${gAlt(g)}`}>
+            <button key={g.src} className="pop-in overflow-hidden rounded-2xl text-left group" style={{ animationDelay: `${i * 0.07}s` }} onClick={() => setLightbox(i)} aria-label={`${t.openPhoto} ${i + 1}: ${gAlt(g)}`}>
               <img src={g.src} alt={gAlt(g)} className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
             </button>
           ))}
@@ -475,9 +483,9 @@ export default function Home() {
           <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4" onClick={() => setLightbox(null)} {...swipe(() => setLightbox((lightbox + 1) % filteredGallery.length), () => setLightbox((lightbox - 1 + filteredGallery.length) % filteredGallery.length))}>
             <img src={filteredGallery[lightbox].src} alt={gAlt(filteredGallery[lightbox])} className="pop-in max-w-full max-h-[85vh] rounded-2xl object-contain" onClick={(e) => e.stopPropagation()} />
             <p className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/80 text-sm">{gAlt(filteredGallery[lightbox])} · {lightbox + 1} / {filteredGallery.length}</p>
-            <button className="absolute top-4 right-4 text-white text-3xl" aria-label="Close">×</button>
-            <button className="absolute left-3 top-1/2 -translate-y-1/2 text-white text-4xl px-3 py-1 rounded-full" style={{ background: "rgba(0,0,0,.4)" }} aria-label="Previous photo" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + filteredGallery.length) % filteredGallery.length); }}>‹</button>
-            <button className="absolute right-3 top-1/2 -translate-y-1/2 text-white text-4xl px-3 py-1 rounded-full" style={{ background: "rgba(0,0,0,.4)" }} aria-label="Next photo" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % filteredGallery.length); }}>›</button>
+            <button className="absolute top-4 right-4 text-white text-3xl" aria-label={t.closeBtn}>×</button>
+            <button className="absolute left-3 top-1/2 -translate-y-1/2 text-white text-4xl px-3 py-1 rounded-full" style={{ background: "rgba(0,0,0,.4)" }} aria-label={t.prevPhoto} onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + filteredGallery.length) % filteredGallery.length); }}>‹</button>
+            <button className="absolute right-3 top-1/2 -translate-y-1/2 text-white text-4xl px-3 py-1 rounded-full" style={{ background: "rgba(0,0,0,.4)" }} aria-label={t.nextPhoto} onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % filteredGallery.length); }}>›</button>
           </div>
         )}
       </section>
@@ -493,18 +501,18 @@ export default function Home() {
           {...swipe(() => goToT(tIdx + 1), () => goToT(tIdx - 1))}
         >
           <div key={tIdx} className="step-in" aria-live="polite">
-            <p className="font-display text-2xl sm:text-3xl leading-snug">“{TESTIMONIALS[tIdx].text}”</p>
-            <footer className="mt-5 text-sm"><span className="font-semibold">{TESTIMONIALS[tIdx].name}</span> <span className="muted">· {TESTIMONIALS[tIdx].service}</span></footer>
+            <p className="font-display text-2xl sm:text-3xl leading-snug">“{testiText(TESTIMONIALS[tIdx])}”</p>
+            <footer className="mt-5 text-sm"><span className="font-semibold">{TESTIMONIALS[tIdx].name}</span> <span className="muted">· {testiService(TESTIMONIALS[tIdx])}</span></footer>
           </div>
           <div className="flex items-center justify-between mt-8">
             <div className="flex gap-2">
               {TESTIMONIALS.map((q, i) => (
-                <button key={q.name} aria-label={`Testimonial ${i + 1}`} aria-current={i === tIdx} onClick={() => goToT(i)} className={`rounded-full transition-all duration-300 ${i === tIdx ? "w-8 h-2" : "w-2 h-2"}`} style={{ background: i === tIdx ? "var(--magenta)" : "var(--line)" }} />
+                <button key={q.name} aria-label={`${t.testiLabel} ${i + 1}`} aria-current={i === tIdx} onClick={() => goToT(i)} className={`rounded-full transition-all duration-300 ${i === tIdx ? "w-8 h-2" : "w-2 h-2"}`} style={{ background: i === tIdx ? "var(--magenta)" : "var(--line)" }} />
               ))}
             </div>
             <div className="flex gap-2">
-              <button className="chip !px-3" aria-label="Previous testimonial" onClick={() => goToT(tIdx - 1)}>←</button>
-              <button className="chip !px-3" aria-label="Next testimonial" onClick={() => goToT(tIdx + 1)}>→</button>
+              <button className="chip !px-3" aria-label={t.prevTesti} onClick={() => goToT(tIdx - 1)}>←</button>
+              <button className="chip !px-3" aria-label={t.nextTesti} onClick={() => goToT(tIdx + 1)}>→</button>
             </div>
           </div>
         </div>
@@ -514,7 +522,7 @@ export default function Home() {
       <section id="booking" className="max-w-6xl mx-auto px-4 sm:px-6 pb-14 sm:pb-20">
         <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
           <div className="reveal card rounded-3xl p-6 sm:p-10" style={{ borderColor: "var(--gold)" }}>
-            <p className="text-xs tracking-[0.25em] uppercase gold">Simulated booking · Demo only</p>
+            <p className="text-xs tracking-[0.25em] uppercase gold">{t.badgeSimulated}</p>
             <h2 className="font-display text-4xl sm:text-5xl font-semibold mt-2">{t.bookingTitle}</h2>
             <p className="muted mt-2">{t.bookingSub}</p>
             <div className="h-1.5 rounded-full mt-6 overflow-hidden" style={{ background: "var(--line)" }}>
@@ -535,13 +543,13 @@ export default function Home() {
               <div className="mt-8" key={step}>
                 <div className="step-in">
                   {step === 0 && <div className="grid sm:grid-cols-2 gap-3">{LOCATIONS.map((l) => <button key={l.id} className={`card rounded-2xl p-5 text-left lift ${b.location === l.id ? "ring-2" : ""}`} style={b.location === l.id ? { ["--tw-ring-color" as string]: "var(--magenta)" } : {}} onClick={() => setB({ ...b, location: l.id })}><b className="font-display text-xl">{l.name}</b><br /><span className="muted text-sm">{l.address}<br />{locHours(l)}</span></button>)}</div>}
-                  {step === 1 && <div className="grid sm:grid-cols-2 gap-3">{SERVICES.map((s) => <button key={s.id} className={`card rounded-2xl p-5 text-left lift ${b.service === s.id ? "ring-2" : ""}`} style={b.service === s.id ? { ["--tw-ring-color" as string]: "var(--magenta)" } : {}} onClick={() => setB({ ...b, service: s.id })}><b className="font-display text-xl">{sName(s)}</b> <span className="muted text-sm">· {s.mins} min · from {fmtEUR(s.from)}</span><br /><span className="muted text-sm">{sDesc(s)}</span></button>)}</div>}
+                  {step === 1 && <div className="grid sm:grid-cols-2 gap-3">{SERVICES.map((s) => <button key={s.id} className={`card rounded-2xl p-5 text-left lift ${b.service === s.id ? "ring-2" : ""}`} style={b.service === s.id ? { ["--tw-ring-color" as string]: "var(--magenta)" } : {}} onClick={() => setB({ ...b, service: s.id })}><b className="font-display text-xl">{sName(s)}</b> <span className="muted text-sm">· {s.mins} {t.minUnit} · {t.priceFrom} {fmtEUR(s.from)}</span><br /><span className="muted text-sm">{sDesc(s)}</span></button>)}</div>}
                   {step === 2 && <div className="grid sm:grid-cols-2 gap-3">
                     <button className={`card rounded-2xl p-5 text-left lift ${b.staff === "any" ? "ring-2" : ""}`} onClick={() => setB({ ...b, staff: "any" })}><b className="font-display text-xl">{t.firstAvailable}</b><br /><span className="muted text-sm">{t.fastestSlot}</span></button>
                     {staffForService.map((s) => <button key={s.id} className={`card rounded-2xl p-5 text-left flex gap-4 items-center lift ${b.staff === s.id ? "ring-2" : ""}`} onClick={() => setB({ ...b, staff: s.id })}><img src={s.img} alt={s.name} className="w-14 h-14 rounded-full object-cover" /><span><b className="font-display text-xl">{s.name}</b><br /><span className="muted text-sm">{staffRole(s)}</span></span></button>)}
                   </div>}
                   {step === 3 && <div>
-                    <div className="flex flex-wrap gap-2">{DAYS.map((d) => <button key={d} className={`chip ${b.day === d ? "active" : ""}`} onClick={() => setB({ ...b, day: d, slot: "" })}>{d}</button>)}</div>
+                    <div className="flex flex-wrap gap-2">{DAYS.map((d) => <button key={d} className={`chip ${b.day === d ? "active" : ""}`} onClick={() => setB({ ...b, day: d, slot: "" })}>{fmtDay(d)}</button>)}</div>
                     <div className="flex flex-wrap gap-2 mt-4">{SLOTS.map((s) => { const taken = TAKEN[b.day]?.includes(s); return <button key={s} disabled={taken} className={`chip ${b.slot === s ? "active" : ""} disabled:opacity-35 disabled:line-through`} onClick={() => setB({ ...b, slot: s })}>{s}</button>; })}</div>
                     <p className="muted text-sm mt-3">{t.takenNote}</p>
                   </div>}
@@ -554,9 +562,9 @@ export default function Home() {
                     <p className="muted mt-2 text-sm">{t.depositText}</p>
                     <div className="mt-5 rounded-2xl p-5 flex items-center gap-4" style={{ border: "2px solid var(--paypal-2)", background: "color-mix(in srgb, var(--paypal-2) 6%, transparent)" }}>
                       <span className="font-display text-3xl font-bold italic"><span style={{ color: "var(--paypal)" }}>Pay</span><span style={{ color: "var(--paypal-2)" }}>Pal</span></span>
-                      <span className="text-sm"><b>Pay with PayPal</b><br /><span className="muted">{t.depositSecure}</span></span>
+                      <span className="text-sm"><b>{t.payWithPayPal}</b><br /><span className="muted">{t.depositSecure}</span></span>
                     </div>
-                    <p className="mt-3 text-sm"><b>{sName(service)}</b> · {LOCATIONS.find((l) => l.id === b.location)?.name} · {b.day} at {b.slot || "—"} · from {fmtEUR(service.from)} · via PayPal</p>
+                    <p className="mt-3 text-sm"><b>{sName(service)}</b> · {LOCATIONS.find((l) => l.id === b.location)?.name} · {fmtDay(b.day)} {t.atWord} {b.slot || "—"} · {t.priceFrom} {fmtEUR(service.from)} · via PayPal</p>
                   </div>}
                 </div>
                 <div className="flex gap-3 mt-6">
@@ -568,7 +576,7 @@ export default function Home() {
             {step === 6 && confirmed && (
               <div className="fadein mt-8 card rounded-2xl p-6" style={{ background: "var(--orchid)" }}>
                 <h3 className="font-display text-3xl font-semibold">{t.confirmedTitle}</h3>
-                <p className="mt-2">{sName(service)} · {LOCATIONS.find((l) => l.id === confirmed.location)?.name} · {confirmed.day} at {confirmed.slot} · {confirmed.name} · simulated deposit {fmtEUR(DEPOSIT_EUR)} via PayPal</p>
+                <p className="mt-2">{sName(service)} · {LOCATIONS.find((l) => l.id === confirmed.location)?.name} · {fmtDay(confirmed.day)} {t.atWord} {confirmed.slot} · {confirmed.name} · {t.confirmedDeposit}</p>
                 <button className="btn-ghost mt-4" onClick={() => { setStep(0); setConfirmed(null); setB({ ...b, slot: "", name: "", email: "" }); }}>{t.bookAnother}</button>
               </div>
             )}
@@ -581,9 +589,9 @@ export default function Home() {
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between gap-3"><dt className="muted">{t.sumParlour}</dt><dd className="font-semibold text-right">{LOCATIONS.find((l) => l.id === b.location)?.name}</dd></div>
               <div className="flex justify-between gap-3"><dt className="muted">{t.sumSpecialist}</dt><dd className="font-semibold text-right">{staffName}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="muted">{t.sumWhen}</dt><dd className="font-semibold text-right">{b.day} · {b.slot || t.pickSlot}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="muted">{t.sumDuration}</dt><dd className="font-semibold text-right">{service.mins} min</dd></div>
-              <div className="flex justify-between gap-3"><dt className="muted">{t.sumPrice}</dt><dd className="font-semibold text-right">from {fmtEUR(service.from)}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="muted">{t.sumWhen}</dt><dd className="font-semibold text-right">{fmtDay(b.day)} · {b.slot || t.pickSlot}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="muted">{t.sumDuration}</dt><dd className="font-semibold text-right">{service.mins} {t.minUnit}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="muted">{t.sumPrice}</dt><dd className="font-semibold text-right">{t.priceFrom} {fmtEUR(service.from)}</dd></div>
               <div className="flex justify-between gap-3 border-t pt-3" style={{ borderColor: "var(--line)" }}><dt className="muted">{t.sumDeposit}</dt><dd className="font-semibold text-right">{fmtEUR(DEPOSIT_EUR)}</dd></div>
             </dl>
             <p className="muted text-xs mt-4">{t.summaryNote}</p>
@@ -604,7 +612,7 @@ export default function Home() {
           </div>
           <div className="card rounded-2xl mt-4 overflow-x-auto">
             <table className="w-full text-sm min-w-[560px]"><thead><tr className="text-left muted"><th className="p-4">{t.thGuest}</th><th className="p-4">{t.thService}</th><th className="p-4">{t.thLocation}</th><th className="p-4">{t.thWhen}</th><th className="p-4">{t.thStatus}</th></tr></thead>
-              <tbody>{admin.map((a, i) => <tr key={`${a.name}-${i}`} className={`border-t ${i === admin.length - 1 && admin.length > 2 ? "pop-in" : ""}`} style={{ borderColor: "var(--line)" }}><td className="p-4">{a.name}</td><td className="p-4">{sName(SERVICES.find((s) => s.id === a.service)!)}</td><td className="p-4">{LOCATIONS.find((l) => l.id === a.location)?.name}</td><td className="p-4">{a.day} · {a.slot}</td><td className="p-4"><span className="text-xs px-2 py-1 rounded-full" style={{ background: "var(--orchid)" }}>DEMO</span></td></tr>)}</tbody>
+              <tbody>{admin.map((a, i) => <tr key={`${a.name}-${i}`} className={`border-t ${i === admin.length - 1 && admin.length > 2 ? "pop-in" : ""}`} style={{ borderColor: "var(--line)" }}><td className="p-4">{a.name}</td><td className="p-4">{sName(SERVICES.find((s) => s.id === a.service)!)}</td><td className="p-4">{LOCATIONS.find((l) => l.id === a.location)?.name}</td><td className="p-4">{fmtDay(a.day)} · {a.slot}</td><td className="p-4"><span className="text-xs px-2 py-1 rounded-full" style={{ background: "var(--orchid)" }}>DEMO</span></td></tr>)}</tbody>
             </table>
           </div>
         </div>
@@ -615,12 +623,8 @@ export default function Home() {
         <h2 className="reveal font-display text-4xl sm:text-5xl font-semibold">{t.proposalTitle}</h2>
         <p className="reveal muted mt-3">{t.proposalSub}</p>
         <div className="grid md:grid-cols-3 gap-4 mt-8">
-          {[
-            ["Demo website", "$500–$2,000", "This demo: 5–7 pages, DE/EN shell, simulated booking + admin demo."],
-            ["Full build — freelancer", "$1,700–$5,750", "Live booking, PayPal payments, reminders, admin. (One estimator puts it $2,900–$8,700.)"],
-            ["Full build — agency", "$5,750–$16,600", "Strategy, brand design, copy, integrations, multi-location."],
-          ].map(([n, p, d], i) => (
-            <div key={n} className="reveal card rounded-2xl p-6 lift" style={{ ["--d" as string]: `${i * 0.08}s` }}><h3 className="font-display text-2xl font-semibold">{n}</h3><p className="font-display text-3xl font-semibold accent mt-2">{p}</p><p className="muted text-sm mt-2">{d}</p></div>
+          {PROPOSAL_CARDS.map((c, i) => (
+            <div key={c.title} className="reveal card rounded-2xl p-6 lift" style={{ ["--d" as string]: `${i * 0.08}s` }}><h3 className="font-display text-2xl font-semibold">{lang === "de" ? c.titleDe : c.title}</h3><p className="font-display text-3xl font-semibold accent mt-2">{c.price}</p><p className="muted text-sm mt-2">{lang === "de" ? c.bodyDe : c.body}</p></div>
           ))}
         </div>
         <p className="reveal muted text-sm mt-4">{t.proposalFootnote}</p>

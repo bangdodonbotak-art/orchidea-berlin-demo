@@ -16,7 +16,7 @@ export default function TeamPage() {
             <span className="hidden sm:inline text-xs tracking-[0.25em] uppercase muted">Berlin</span>
           </a>
           <div className="flex items-center gap-2">
-            <button className="chip !py-1.5" onClick={() => setLang(lang === "en" ? "de" : "en")} aria-label="Switch language">{lang === "en" ? "DE" : "EN"}</button>
+            <button className="chip !py-1.5" onClick={() => setLang(lang === "en" ? "de" : "en")} aria-label={t.switchLang}>{lang === "en" ? "DE" : "EN"}</button>
             <a href="/#booking" className="btn-primary !py-2 !px-4 text-sm">{t.book}</a>
           </div>
         </div>
