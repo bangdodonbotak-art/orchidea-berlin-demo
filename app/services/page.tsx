@@ -4,7 +4,9 @@ import { CAT_LABELS, SERVICES, T, fmtEUR, type Lang, type Service } from "../../
 
 /* /services — full services & prices page (v3.1, defect 6; v3.2: varied
    layout like the homepage — featured Signature Facial full-width, mixed
-   tall/row cards, no dead empty space — and full DE translation). */
+   tall/row cards, no dead empty space — and full DE translation.
+   v3.3: card-gap fix (grid items-start + no justify-between, price follows
+   the description) and German alt texts via sAlt.) */
 export default function ServicesPage() {
   const [lang, setLang] = useState<Lang>("en");
   const t = T[lang];
@@ -12,6 +14,7 @@ export default function ServicesPage() {
   const catLabel = (c: string) => CAT_LABELS[lang][c] ?? c;
   const sName = (s: Service) => (lang === "de" ? s.nameDe : s.name);
   const sDesc = (s: Service) => (lang === "de" ? s.descDe : s.desc);
+  const sAlt = (s: Service) => (lang === "de" ? s.imgAltDe : s.imgAlt);
   // Same varied layout as the homepage services (defect 4 fix).
   const serviceLayout = (s: Service): "featured" | "wide" | "tall" | "row" => {
     if (s.id === "signature-facial") return "featured";
@@ -41,11 +44,11 @@ export default function ServicesPage() {
             <button key={c} className={`chip ${cat === c ? "active" : ""}`} onClick={() => setCat(c)}>{catLabel(c)}</button>
           ))}
         </div>
-        <div key={cat} className="grid sm:grid-cols-2 gap-4 mt-8">
+        <div key={cat} className="grid sm:grid-cols-2 items-start gap-4 mt-8">
           {SERVICES.filter((s) => cat === "All" || s.cat === cat).map((s, i) => {
             const layout = serviceLayout(s);
             const price = (
-              <div className="flex items-end justify-between gap-2">
+              <div className="flex items-end justify-between gap-2 mt-3">
                 <a href="/#booking" className="text-sm font-semibold accent hover:underline">{t.bookCta}</a>
                 <div className="text-right shrink-0">
                   <div className="font-display text-2xl font-semibold">{t.priceFrom} {fmtEUR(s.from)}</div>
@@ -54,7 +57,7 @@ export default function ServicesPage() {
               </div>
             );
             const body = (
-              <div className="p-5 flex-1 flex flex-col justify-between gap-2">
+              <div className="p-5 flex-1 flex flex-col gap-2">
                 <div>
                   <p className="text-xs tracking-[0.2em] uppercase gold">{catLabel(s.cat)} · {s.mins} {t.minUnit}</p>
                   <h2 className="font-display text-2xl font-semibold mt-1">{sName(s)}</h2>
@@ -68,7 +71,7 @@ export default function ServicesPage() {
               return (
                 <article key={s.id} className="card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row" style={{ borderColor: "var(--gold)" }}>
                   <div className="overflow-hidden sm:w-2/5 shrink-0">
-                    <img src={s.img} alt={s.imgAlt} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                    <img src={s.img} alt={sAlt(s)} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
                   </div>
                   {body}
                 </article>
@@ -78,7 +81,7 @@ export default function ServicesPage() {
               return (
                 <article key={s.id} className="card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row-reverse">
                   <div className="overflow-hidden sm:w-2/5 shrink-0">
-                    <img src={s.img} alt={s.imgAlt} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                    <img src={s.img} alt={sAlt(s)} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
                   </div>
                   {body}
                 </article>
@@ -88,7 +91,7 @@ export default function ServicesPage() {
               return (
                 <article key={s.id} className="card rounded-2xl overflow-hidden lift flex flex-col">
                   <div className="overflow-hidden">
-                    <img src={s.img} alt={s.imgAlt} className="w-full aspect-[16/10] object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                    <img src={s.img} alt={sAlt(s)} className="w-full aspect-[16/10] object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
                   </div>
                   {body}
                 </article>
@@ -97,7 +100,7 @@ export default function ServicesPage() {
             return (
               <article key={s.id} className="card rounded-2xl overflow-hidden lift flex gap-0">
                 <div className="overflow-hidden w-28 sm:w-36 shrink-0">
-                  <img src={s.img} alt={s.imgAlt} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" />
+                  <img src={s.img} alt={sAlt(s)} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" />
                 </div>
                 {body}
               </article>

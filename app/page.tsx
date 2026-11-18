@@ -118,6 +118,9 @@ export default function Home() {
   const t = T[lang];
   const sName = (s: Service) => (lang === "de" ? s.nameDe : s.name);
   const sDesc = (s: Service) => (lang === "de" ? s.descDe : s.desc);
+  const sAlt = (s: Service) => (lang === "de" ? s.imgAltDe : s.imgAlt);
+  // Seeded demo guests translate in DE; a visitor's own typed name is untouched.
+  const guestName = (n: string) => (lang === "de" ? n.replace("Demo Guest", "Demo-Gast") : n);
   const gAlt = (g: (typeof GALLERY)[number]) => (lang === "de" ? g.altDe : g.alt);
   const staffRole = (s: (typeof STAFF)[number]) => (lang === "de" ? s.roleDe : s.role);
   const locHours = (l: (typeof LOCATIONS)[number]) => (lang === "de" ? l.hoursDe : l.hours);
@@ -252,11 +255,11 @@ export default function Home() {
             stays readable where it crosses bright objects (e.g. the white
             bottle on slide 1) — plus text-shadow on the headline copy. */}
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(20,10,14,.45), rgba(20,10,14,.15) 45%, rgba(20,10,14,.72))" }} />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(20,10,14,.62) 0%, rgba(20,10,14,.38) 55%, rgba(20,10,14,0) 85%)" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(20,10,14,.74) 0%, rgba(20,10,14,.48) 55%, rgba(20,10,14,0) 85%)" }} />
         <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(560px circle at ${glow.x}% ${glow.y}%, rgba(255,214,140,.20), transparent 65%)`, transition: "background .3s ease" }} />
         <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 flex flex-col justify-end pb-16 sm:pb-20">
           <p className="fadein text-xs sm:text-sm tracking-[0.3em] uppercase mb-4" style={{ color: "var(--gold-soft)" }}>{t.heroKicker}</p>
-          <h1 className="font-display font-semibold leading-[0.95] text-[clamp(3rem,9vw,6.5rem)] max-w-3xl" aria-label={t.heroTitle} style={{ textShadow: "0 2px 28px rgba(0,0,0,.55), 0 1px 6px rgba(0,0,0,.5)" }}>
+          <h1 className="font-display font-semibold leading-[0.95] text-[clamp(3rem,9vw,6.5rem)] max-w-3xl" aria-label={t.heroTitle} style={{ textShadow: "0 2px 32px rgba(0,0,0,.72), 0 1px 8px rgba(0,0,0,.65), 0 0 18px rgba(0,0,0,.45)" }}>
             {heroWords.map((w, i) => (
               <span key={i} className="word-rise" aria-hidden="true"><span style={{ ["--d" as string]: `${0.15 + i * 0.12}s` }}>{w}&nbsp;</span></span>
             ))}
@@ -375,17 +378,17 @@ export default function Home() {
             {(["All", "Hair", "Skin", "Nails", "Massage"] as const).map((c) => <button key={c} className={`chip ${cat === c ? "active" : ""}`} onClick={() => setCat(c)}>{catLabel(c)}</button>)}
           </div>
         </div>
-        <div key={cat} className="grid sm:grid-cols-2 gap-4 mt-8">
+        <div key={cat} className="grid sm:grid-cols-2 items-start gap-4 mt-8">
           {SERVICES.filter((s) => cat === "All" || s.cat === cat).map((s, i) => {
             const layout = serviceLayout(s);
             const price = (
-              <div className="flex items-end justify-between gap-2">
+              <div className="flex items-end justify-between gap-2 mt-3">
                 <button className="text-sm font-semibold accent hover:underline" onClick={() => { setB({ ...b, service: s.id }); document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" }); }}>{t.bookCta}</button>
                 <div className="text-right shrink-0"><div className="font-display text-2xl font-semibold">{t.priceFrom} {fmtEUR(s.from)}</div><div className="muted text-xs">{t.priceUpTo} {fmtEUR(s.to)}</div></div>
               </div>
             );
             const body = (
-              <div className="p-5 flex-1 flex flex-col justify-between gap-2">
+              <div className="p-5 flex-1 flex flex-col gap-2">
                 <div>
                   <p className="text-xs tracking-[0.2em] uppercase gold">{catLabel(s.cat)} · {s.mins} {t.minUnit}</p>
                   <h3 className="font-display text-2xl font-semibold mt-1">{sName(s)}</h3>
@@ -399,7 +402,7 @@ export default function Home() {
               return (
                 <article key={s.id} className="reveal visible card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row" style={{ borderColor: "var(--gold)", ["--d" as string]: `${i * 0.06}s` }}>
                   <div className="overflow-hidden sm:w-2/5 shrink-0">
-                    <img src={s.img} alt={s.imgAlt} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                    <img src={s.img} alt={sAlt(s)} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
                   </div>
                   {body}
                 </article>
@@ -409,7 +412,7 @@ export default function Home() {
               return (
                 <article key={s.id} className="reveal visible card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row-reverse" style={{ ["--d" as string]: `${i * 0.06}s` }}>
                   <div className="overflow-hidden sm:w-2/5 shrink-0">
-                    <img src={s.img} alt={s.imgAlt} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                    <img src={s.img} alt={sAlt(s)} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
                   </div>
                   {body}
                 </article>
@@ -419,7 +422,7 @@ export default function Home() {
               return (
                 <article key={s.id} className="reveal visible card rounded-2xl overflow-hidden lift flex flex-col" style={{ ["--d" as string]: `${i * 0.06}s` }}>
                   <div className="overflow-hidden">
-                    <img src={s.img} alt={s.imgAlt} className="w-full aspect-[16/10] object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                    <img src={s.img} alt={sAlt(s)} className="w-full aspect-[16/10] object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
                   </div>
                   {body}
                 </article>
@@ -428,7 +431,7 @@ export default function Home() {
             return (
               <article key={s.id} className="reveal visible card rounded-2xl overflow-hidden lift flex gap-0" style={{ ["--d" as string]: `${i * 0.06}s` }}>
                 <div className="overflow-hidden w-28 sm:w-36 shrink-0">
-                  <img src={s.img} alt={s.imgAlt} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" />
+                  <img src={s.img} alt={sAlt(s)} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" />
                 </div>
                 {body}
               </article>
@@ -612,7 +615,7 @@ export default function Home() {
           </div>
           <div className="card rounded-2xl mt-4 overflow-x-auto">
             <table className="w-full text-sm min-w-[560px]"><thead><tr className="text-left muted"><th className="p-4">{t.thGuest}</th><th className="p-4">{t.thService}</th><th className="p-4">{t.thLocation}</th><th className="p-4">{t.thWhen}</th><th className="p-4">{t.thStatus}</th></tr></thead>
-              <tbody>{admin.map((a, i) => <tr key={`${a.name}-${i}`} className={`border-t ${i === admin.length - 1 && admin.length > 2 ? "pop-in" : ""}`} style={{ borderColor: "var(--line)" }}><td className="p-4">{a.name}</td><td className="p-4">{sName(SERVICES.find((s) => s.id === a.service)!)}</td><td className="p-4">{LOCATIONS.find((l) => l.id === a.location)?.name}</td><td className="p-4">{fmtDay(a.day)} · {a.slot}</td><td className="p-4"><span className="text-xs px-2 py-1 rounded-full" style={{ background: "var(--orchid)" }}>DEMO</span></td></tr>)}</tbody>
+              <tbody>{admin.map((a, i) => <tr key={`${a.name}-${i}`} className={`border-t ${i === admin.length - 1 && admin.length > 2 ? "pop-in" : ""}`} style={{ borderColor: "var(--line)" }}><td className="p-4">{guestName(a.name)}</td><td className="p-4">{sName(SERVICES.find((s) => s.id === a.service)!)}</td><td className="p-4">{LOCATIONS.find((l) => l.id === a.location)?.name}</td><td className="p-4">{fmtDay(a.day)} · {a.slot}</td><td className="p-4"><span className="text-xs px-2 py-1 rounded-full" style={{ background: "var(--orchid)" }}>DEMO</span></td></tr>)}</tbody>
             </table>
           </div>
         </div>
@@ -633,7 +636,7 @@ export default function Home() {
       {/* Visit */}
       <section id="visit" className="max-w-6xl mx-auto px-4 sm:px-6 pb-14 sm:pb-20">
         <h2 className="reveal font-display text-4xl sm:text-5xl font-semibold">{t.visitTitle}</h2>
-        <div className="grid sm:grid-cols-2 gap-4 mt-8">
+        <div className="grid sm:grid-cols-2 items-start gap-4 mt-8">
           {LOCATIONS.map((l, i) => (
             <div key={l.id} className="reveal card rounded-2xl p-6 lift" style={{ ["--d" as string]: `${i * 0.06}s` }}><h3 className="font-display text-2xl font-semibold">{l.name}</h3><p className="muted mt-1">{l.address}<br />{locHours(l)}</p></div>
           ))}
