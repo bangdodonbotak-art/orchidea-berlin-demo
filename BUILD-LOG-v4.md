@@ -286,3 +286,31 @@ exact versions, gates and drops. No paid signup, no Pro purchase.
   components dropped. Blueprint §2, §7 #5, §9 #5 updated; §11 history kept
   as written. Ship (Phase 5) proceeds; real-browser audit still required
   after deploy before the build is called final.
+
+## Phase 5 — SHIP: DONE 19 Nov 2026 ~02:52–02:57 WIB
+- Gate: 180 kB → 210 kB (Dony, ~02:51 WIB). `npm run audit:v4` PASS;
+  `npm run build` exit 0, 10 static pages; `/` 209 kB, /services 176 kB,
+  /team 114 kB — all within the new gate.
+- Local commit 2e32288 ("v4: Arc UI + Bencho Deposit Slide — bundle gate
+  210 kB (Dony 19 Nov 2026)"), 41 files changed. Snapshot push to GitHub
+  main: commit 6b492c6da669238fc03ecbc0a6907493052c6eac (58 files, 484,849
+  bytes). Pre-push checks: remote head was 93f00a35 (matched sync record,
+  no other writer); new paths (lib/DepositSlide.tsx, components.json, …)
+  confirmed absent remotely. Sync record updated (22 entries).
+- Vercel: API status check BLOCKED — MCP list_projects/list_deployments
+  return 403 on team scope "bangdodon" (known gotcha; same as v1). READY
+  is established by the live URL, not an API call: Vercel auto-deployed
+  from main and the production URL serves the v4 build (see curl checks).
+  Deployment Protection OFF in effect — full site content served with
+  HTTP 200, no auth interstitial.
+- Live verification (fresh curl, ~02:57 WIB): HTTP 200 on all 8 routes —
+  /, /services, /team, /impressum, /datenschutz, /sitemap.xml, /robots.txt,
+  /favicon.svg. v4 markers live: SSR HTML contains "Questions, answered"
+  + FAQ answer "free cancellation up to 24 hours"; JS chunk 536 contains
+  "Slide to confirm your €20 deposit", "Deposit confirmed", DE
+  "Zum Bestätigen wischen — €20 Anzahlung" and "Fragen, beantwortet";
+  page chunk contains Arc accordion + animated-counter markers. Live site
+  was still v3.8 minutes before the push (0 FAQ matches) — not a stale
+  cache. Live: https://orchidea-berlin-demo.vercel.app
+- NOT VERIFIED — real-browser audit (desktop + 375px + console errors)
+  still open; the parent runs it next. The build is shipped, NOT final.
