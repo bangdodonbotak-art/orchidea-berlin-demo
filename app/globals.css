@@ -25,6 +25,8 @@
   --orchid: #3a2432;
 }
 html { scroll-behavior: smooth; }
+/* Anchor targets must clear the sticky header (defect 5 fix, v3.1) */
+section[id] { scroll-margin-top: 96px; }
 body {
   background: var(--ivory);
   color: var(--ink);
