@@ -79,7 +79,7 @@ freelancer; $5,750–$16,600 agency — general market ranges, not a quote).
 - NOT verified in a real browser: desktop + 375px rendering, no-overflow, no console errors, touch/swipe feel, and the visual confirmation that the card gap is gone + DE survives navigation — parent agent to check on the live URL.
 
 ## v3.5 shipped — 18 Nov 2026 ~12:2x WIB
-- GitHub commit `TBD` (local `TBD`, 4 files: lib/data.ts, app/page.tsx, app/services/page.tsx, BLUEPRINT.md), branch main. Sync record updated (N entries).
+- GitHub commit `59d00403d1111aa9fa5538875fade2a6de5a4645` (local `b697fcc`, 4 files: lib/data.ts, app/page.tsx, app/services/page.tsx, BLUEPRINT.md), branch main. Sync record updated (13 entries).
 - `npm run build` exit 0, 10 static pages. Local smoke: `/`, `/services`, `/team`, `/impressum`, `/datenschutz`, `/sitemap.xml`, `/robots.txt` all HTTP 200.
 - Fixes (final audit 18 Nov 2026 12:22–12:24 WIB — the big card gap was already GONE; what remained was consistent normal card padding, ~25–30px desc→price measured incl. line-height and ~20–30px below the footer — NOT a defect to chase with negative margins):
   1. **DE words (last leftovers):** "Glow-Maske" → "Glanz-Maske" (2×: Signature Facial descDe + featuredText); "Haarschnitt & Finish" → "Haarschnitt & Styling" (nameDe); "Spiegelglanz-Finish" → "Spiegelglanz" (Balayage descDe); "Gel-Finish" → "Gel-Lack" (Gel Pedicure descDe). EN strings keep "Finish" / "glow mask" unchanged.
