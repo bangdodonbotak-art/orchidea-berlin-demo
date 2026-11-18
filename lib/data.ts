@@ -33,7 +33,7 @@ export type Service = {
 // matches the service). Never reuse photo-1560066984 (banned B&W).
 const U = (id: string, w = 1200) => `https://images.unsplash.com/${id}?q=80&w=${w}&auto=format&fit=crop`;
 export const SERVICES: Service[] = [
-  { id: "balayage", cat: "Hair", name: "Balayage & Gloss", nameDe: "Balayage & Gloss", desc: "Soft, low-maintenance colour with a mirror gloss finish.", descDe: "Sanfte, pflegeleichte Farbe mit Spiegelglanz-Finish.", mins: 150, from: 130, to: 180, img: U("photo-1492106087820-71f1a00d2b11"), imgAlt: "Long wavy hair with glossy lavender colour", imgAltDe: "Langes, gewelltes Haar mit glänzender Lavendelfarbe" },
+  { id: "balayage", cat: "Hair", name: "Balayage & Gloss", nameDe: "Balayage & Glanz", desc: "Soft, low-maintenance colour with a mirror gloss finish.", descDe: "Sanfte, pflegeleichte Farbe mit Spiegelglanz-Finish.", mins: 150, from: 130, to: 180, img: U("photo-1492106087820-71f1a00d2b11"), imgAlt: "Long wavy hair with glossy lavender colour", imgAltDe: "Langes, gewelltes Haar mit glänzender Lavendelfarbe" },
   { id: "cut-finish", cat: "Hair", name: "Cut & Finish", nameDe: "Haarschnitt & Finish", desc: "Precision cut, wash and blow-dry, styled to your face.", descDe: "Präziser Schnitt, Wäsche und Föhnen — auf Ihr Gesicht abgestimmt.", mins: 60, from: 45, to: 68, img: U("photo-1562322140-8baeececf3df"), imgAlt: "Stylist blow-drying a client's hair in a bright salon", imgAltDe: "Stylistin föhnt das Haar einer Kundin in einem hellen Salon" },
   { id: "signature-facial", cat: "Skin", name: "Signature Facial", nameDe: "Signature-Gesichtsbehandlung", desc: "Deep cleanse, massage and glow mask — our most-booked ritual.", descDe: "Tiefenreinigung, Massage und Glow-Maske — unser beliebtestes Ritual.", mins: 75, from: 65, to: 89, img: U("photo-1616394584738-fc6e612e71b9"), imgAlt: "Facial mask being applied with a brush", imgAltDe: "Gesichtsmaske wird mit einem Pinsel aufgetragen" },
   // Aquafacial photo (v3.2): photo-1552693673 — gloved hands guiding a metal
@@ -46,7 +46,7 @@ export const SERVICES: Service[] = [
   // CDN URL could not be recovered; 6 other Unsplash candidates checked
   // visually were wrong subjects — makeup palette, branded product shots,
   // massage). Real client photos replace this at launch.
-  { id: "aquafacial", cat: "Skin", name: "Aquafacial Glow", nameDe: "Aquafacial Glow", desc: "Hydra-cleanse and infusion for instantly plumped skin.", descDe: "Hydra-Reinigung und Infusion für sofort prallere Haut.", mins: 60, from: 85, to: 149, img: U("photo-1552693673-1bf958298935"), imgAlt: "Device facial treatment — gloved hands guiding a handpiece over the cheek", imgAltDe: "Gesichtsbehandlung mit Gerät — behandschuhte Hände führen ein Handstück über die Wange" },
+  { id: "aquafacial", cat: "Skin", name: "Aquafacial Glow", nameDe: "Aquafacial Glanz", desc: "Hydra-cleanse and infusion for instantly plumped skin.", descDe: "Hydra-Reinigung und Infusion für sofort prallere Haut.", mins: 60, from: 85, to: 149, img: U("photo-1552693673-1bf958298935"), imgAlt: "Device facial treatment — gloved hands guiding a handpiece over the cheek", imgAltDe: "Gesichtsbehandlung mit Gerät — behandschuhte Hände führen ein Handstück über die Wange" },
   { id: "shellac", cat: "Nails", name: "Shellac Manicure", nameDe: "Shellac-Maniküre", desc: "Chip-free colour for up to three weeks, with cuticle care.", descDe: "Splitterfreie Farbe für bis zu drei Wochen, inklusive Nagelhautpflege.", mins: 60, from: 38, to: 53, img: U("photo-1604654894610-df63bc536371"), imgAlt: "Manicured hand with black and tortoiseshell nails", imgAltDe: "Manikürte Hand mit schwarzen und Schildpatt-Nägeln" },
   { id: "gel-pedicure", cat: "Nails", name: "Gel Pedicure", nameDe: "Gel-Pediküre", desc: "Spa soak, shaping and gel finish — barefoot-ready.", descDe: "Fußbad, Formen und Gel-Finish — bereit für barfuß.", mins: 75, from: 48, to: 65, img: U("photo-1519415510236-718bdfcd89c8"), imgAlt: "Feet soaking in a spa foot bath with frangipani flowers", imgAltDe: "Füße in einem Spa-Fußbad mit Frangipani-Blüten" },
   { id: "deep-tissue", cat: "Massage", name: "Deep Tissue Massage", nameDe: "Tiefengewebsmassage", desc: "Slow, firm work for shoulders, neck and back.", descDe: "Langsame, feste Arbeit für Schultern, Nacken und Rücken.", mins: 60, from: 69, to: 99, img: U("photo-1519823551278-64ac92734fb1"), imgAlt: "Therapist massaging a client's back", imgAltDe: "Therapeutin massiert den Rücken einer Kundin" },
@@ -98,7 +98,7 @@ export const TESTIMONIALS = [
 // Ritual Finder options — ids drive the logic, labels are translated.
 export const MOOD_OPTIONS = [
   { id: "Reset", en: "Reset", de: "Entspannen" },
-  { id: "Glow", en: "Glow", de: "Glow" },
+  { id: "Glow", en: "Glow", de: "Glanz" },
   { id: "Colour", en: "Colour", de: "Farbe" },
   { id: "Polish", en: "Polish", de: "Gepflegt" },
 ] as const;
@@ -132,7 +132,7 @@ export const DAY_LABELS: Record<Lang, Record<string, string>> = {
 export type ProposalCard = { title: string; titleDe: string; price: string; body: string; bodyDe: string };
 export const PROPOSAL_CARDS: ProposalCard[] = [
   { title: "Demo website", titleDe: "Demo-Website", price: "$500–$2,000", body: "This demo: 5–7 pages, DE/EN shell, simulated booking + admin demo.", bodyDe: "Diese Demo: 5–7 Seiten, DE/EN, simulierte Buchung + Admin-Demo." },
-  { title: "Full build — freelancer", titleDe: "Vollversion — Freelancer", price: "$1,700–$5,750", body: "Live booking, PayPal payments, reminders, admin. (One estimator puts it $2,900–$8,700.)", bodyDe: "Echte Buchung, PayPal-Zahlungen, Erinnerungen, Admin. (Ein Schätzer nennt $2.900–$8.700.)" },
+  { title: "Full build — freelancer", titleDe: "Vollversion — Freiberufler", price: "$1,700–$5,750", body: "Live booking, PayPal payments, reminders, admin. (One estimator puts it $2,900–$8,700.)", bodyDe: "Echte Buchung, PayPal-Zahlungen, Erinnerungen, Admin. (Ein Schätzer nennt $2.900–$8.700.)" },
   { title: "Full build — agency", titleDe: "Vollversion — Agentur", price: "$5,750–$16,600", body: "Strategy, brand design, copy, integrations, multi-location.", bodyDe: "Strategie, Markendesign, Texte, Integrationen, mehrere Standorte." },
 ];
 

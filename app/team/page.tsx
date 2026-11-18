@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
-import { SERVICES, STAFF, T, type Lang } from "../../lib/data";
+import { SERVICES, STAFF, T } from "../../lib/data";
+import { useLang } from "../../lib/useLang";
 
 /* /team — full team page (v3.1, defect 6).
    Reuses lib/data.ts, same design system, DE/EN toggle, DEMO-labelled. */
 export default function TeamPage() {
-  const [lang, setLang] = useState<Lang>("en");
+  // Language persists across pages/tabs via localStorage (v3.4, useLang).
+  const [lang, setLang] = useLang();
   const t = T[lang];
   return (
     <div className="min-h-screen">

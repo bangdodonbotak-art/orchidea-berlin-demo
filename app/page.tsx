@@ -2,8 +2,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CAT_LABELS, DAY_LABELS, DEPOSIT_EUR, GALLERY, HERO_IMAGES, LOCATIONS, MOOD_OPTIONS, PAYMENT_METHODS, PROPOSAL_CARDS, SERVICES, STAFF, STEP_NAMES, T, TESTIMONIALS, TIME_OPTIONS,
-  fmtEUR, type Lang, type Service,
+  fmtEUR, type Service,
 } from "../lib/data";
+import { useLang } from "../lib/useLang";
 
 const DAYS = ["Fri 20 Nov", "Sat 21 Nov", "Mon 23 Nov", "Tue 24 Nov"];
 const SLOTS = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00", "18:30"];
@@ -68,7 +69,8 @@ function CountUp({ end, suffix = "" }: { end: number; suffix?: string }) {
 }
 
 export default function Home() {
-  const [lang, setLang] = useState<Lang>("en");
+  // Language persists across pages/tabs via localStorage (v3.4, useLang).
+  const [lang, setLang] = useLang();
   const [dark, setDark] = useState(false);
   const [ambience, setAmbience] = useState(30); // 0 daylight — 100 evening
   const [playing, setPlaying] = useState(false);
@@ -382,7 +384,7 @@ export default function Home() {
           {SERVICES.filter((s) => cat === "All" || s.cat === cat).map((s, i) => {
             const layout = serviceLayout(s);
             const price = (
-              <div className="flex items-end justify-between gap-2 mt-3">
+              <div className="flex items-end justify-between gap-2 mt-1">
                 <button className="text-sm font-semibold accent hover:underline" onClick={() => { setB({ ...b, service: s.id }); document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" }); }}>{t.bookCta}</button>
                 <div className="text-right shrink-0"><div className="font-display text-2xl font-semibold">{t.priceFrom} {fmtEUR(s.from)}</div><div className="muted text-xs">{t.priceUpTo} {fmtEUR(s.to)}</div></div>
               </div>
@@ -401,8 +403,13 @@ export default function Home() {
             if (layout === "featured") {
               return (
                 <article key={s.id} className="reveal visible card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row" style={{ borderColor: "var(--gold)", ["--d" as string]: `${i * 0.06}s` }}>
-                  <div className="overflow-hidden sm:w-2/5 shrink-0">
-                    <img src={s.img} alt={sAlt(s)} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                  {/* Image wrapper is `relative` + img absolute (v3.4): the img
+                      contributes NO height, so the card height = body height
+                      and no white band appears below the footer. Before, the
+                      img's intrinsic ratio forced the card taller than the
+                      body (the v3.3 gap survived on featured/wide cards). */}
+                  <div className="relative overflow-hidden h-56 sm:h-auto sm:w-2/5 shrink-0">
+                    <img src={s.img} alt={sAlt(s)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
                   </div>
                   {body}
                 </article>
@@ -411,8 +418,9 @@ export default function Home() {
             if (layout === "wide") {
               return (
                 <article key={s.id} className="reveal visible card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row-reverse" style={{ ["--d" as string]: `${i * 0.06}s` }}>
-                  <div className="overflow-hidden sm:w-2/5 shrink-0">
-                    <img src={s.img} alt={sAlt(s)} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                  {/* Same absolute-img fix as featured (v3.4). */}
+                  <div className="relative overflow-hidden h-56 sm:h-auto sm:w-2/5 shrink-0">
+                    <img src={s.img} alt={sAlt(s)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
                   </div>
                   {body}
                 </article>
@@ -430,8 +438,13 @@ export default function Home() {
             }
             return (
               <article key={s.id} className="reveal visible card rounded-2xl overflow-hidden lift flex gap-0" style={{ ["--d" as string]: `${i * 0.06}s` }}>
-                <div className="overflow-hidden w-28 sm:w-36 shrink-0">
-                  <img src={s.img} alt={sAlt(s)} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" />
+                {/* Row card (v3.4 root-cause fix): the old `h-full` img fell back
+                    to its intrinsic aspect ratio and forced the card taller
+                    than the body — the white band below the footer. With the
+                    img absolute, it contributes no height; card height =
+                    body height, so the footer sits right under the price. */}
+                <div className="relative overflow-hidden w-28 sm:w-36 shrink-0">
+                  <img src={s.img} alt={sAlt(s)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" />
                 </div>
                 {body}
               </article>

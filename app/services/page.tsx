@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { CAT_LABELS, SERVICES, T, fmtEUR, type Lang, type Service } from "../../lib/data";
+import { CAT_LABELS, SERVICES, T, fmtEUR, type Service } from "../../lib/data";
+import { useLang } from "../../lib/useLang";
 
 /* /services — full services & prices page (v3.1, defect 6; v3.2: varied
    layout like the homepage — featured Signature Facial full-width, mixed
@@ -8,7 +9,8 @@ import { CAT_LABELS, SERVICES, T, fmtEUR, type Lang, type Service } from "../../
    v3.3: card-gap fix (grid items-start + no justify-between, price follows
    the description) and German alt texts via sAlt.) */
 export default function ServicesPage() {
-  const [lang, setLang] = useState<Lang>("en");
+  // Language persists across pages/tabs via localStorage (v3.4, useLang).
+  const [lang, setLang] = useLang();
   const t = T[lang];
   const [cat, setCat] = useState<"All" | "Hair" | "Skin" | "Nails" | "Massage">("All");
   const catLabel = (c: string) => CAT_LABELS[lang][c] ?? c;
@@ -48,7 +50,7 @@ export default function ServicesPage() {
           {SERVICES.filter((s) => cat === "All" || s.cat === cat).map((s, i) => {
             const layout = serviceLayout(s);
             const price = (
-              <div className="flex items-end justify-between gap-2 mt-3">
+              <div className="flex items-end justify-between gap-2 mt-1">
                 <a href="/#booking" className="text-sm font-semibold accent hover:underline">{t.bookCta}</a>
                 <div className="text-right shrink-0">
                   <div className="font-display text-2xl font-semibold">{t.priceFrom} {fmtEUR(s.from)}</div>
@@ -70,8 +72,11 @@ export default function ServicesPage() {
             if (layout === "featured") {
               return (
                 <article key={s.id} className="card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row" style={{ borderColor: "var(--gold)" }}>
-                  <div className="overflow-hidden sm:w-2/5 shrink-0">
-                    <img src={s.img} alt={sAlt(s)} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                  {/* Image wrapper `relative` + img absolute (v3.4): img adds no
+                      height, card height = body height, no white band below
+                      the footer. */}
+                  <div className="relative overflow-hidden h-56 sm:h-auto sm:w-2/5 shrink-0">
+                    <img src={s.img} alt={sAlt(s)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
                   </div>
                   {body}
                 </article>
@@ -80,8 +85,9 @@ export default function ServicesPage() {
             if (layout === "wide") {
               return (
                 <article key={s.id} className="card rounded-2xl overflow-hidden lift sm:col-span-2 flex flex-col sm:flex-row-reverse">
-                  <div className="overflow-hidden sm:w-2/5 shrink-0">
-                    <img src={s.img} alt={sAlt(s)} className="w-full h-56 sm:h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                  {/* Same absolute-img fix as featured (v3.4). */}
+                  <div className="relative overflow-hidden h-56 sm:h-auto sm:w-2/5 shrink-0">
+                    <img src={s.img} alt={sAlt(s)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
                   </div>
                   {body}
                 </article>
@@ -99,8 +105,12 @@ export default function ServicesPage() {
             }
             return (
               <article key={s.id} className="card rounded-2xl overflow-hidden lift flex gap-0">
-                <div className="overflow-hidden w-28 sm:w-36 shrink-0">
-                  <img src={s.img} alt={sAlt(s)} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" />
+                {/* Row card (v3.4 root-cause fix): the old `h-full` img fell back
+                    to its intrinsic aspect ratio and forced the card taller
+                    than the body — the white band below the footer. Absolute
+                    img contributes no height; card height = body height. */}
+                <div className="relative overflow-hidden w-28 sm:w-36 shrink-0">
+                  <img src={s.img} alt={sAlt(s)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" />
                 </div>
                 {body}
               </article>
