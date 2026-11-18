@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  --ivory: #faf6ef;
+  --ivory-2: #f3ecdf;
+  --ink: #241d1a;
+  --ink-soft: #5c514b;
+  --magenta: #c2185b;
+  --magenta-deep: #9d174d;
+  --gold: #b9975b;
+  --gold-soft: #e6d9b8;
+  --orchid: #f3d9e8;
+  --card: #fffdf9;
+  --line: #e8ddcb;
+}
+[data-theme="dark"] {
+  --ivory: #171210;
+  --ivory-2: #221a17;
+  --ink: #f5ede3;
+  --ink-soft: #c9b8ab;
+  --card: #241b18;
+  --line: #3d2f2a;
+  --orchid: #3a2432;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: "Jost", "Avenir Next", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.font-display { font-family: "Cormorant Garamond", Georgia, serif; }
+.accent { color: var(--magenta); }
+.gold { color: var(--gold); }
+.card { background: var(--card); border: 1px solid var(--line); }
+.muted { color: var(--ink-soft); }
+
+/* Ken Burns hero */
+@keyframes kenburns { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.12) translate(-1.5%, -1%); } }
+.kenburns { animation: kenburns 18s ease-in-out infinite alternate; }
+@keyframes fadein { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.fadein { animation: fadein .8s ease both; }
+@keyframes crossfade { 0%, 28% { opacity: 1; } 38%, 90% { opacity: 0; } 100% { opacity: 1; } }
+.hero-slide { position: absolute; inset: 0; opacity: 0; animation: crossfade 24s infinite; }
+.hero-slide:nth-child(1) { animation-delay: 0s; }
+.hero-slide:nth-child(2) { animation-delay: 8s; }
+.hero-slide:nth-child(3) { animation-delay: 16s; }
+
+/* Scroll reveal */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .kenburns, .hero-slide, .fadein { animation: none !important; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto; }
+}
+.btn-primary {
+  background: var(--magenta); color: #fff; border-radius: 999px;
+  padding: .8rem 1.6rem; font-weight: 600; letter-spacing: .02em;
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+  box-shadow: 0 8px 24px rgba(194,24,91,.28);
+}
+.btn-primary:hover { background: var(--magenta-deep); transform: translateY(-2px); }
+.btn-ghost {
+  border: 1px solid var(--line); border-radius: 999px; padding: .8rem 1.6rem;
+  font-weight: 600; transition: transform .2s ease, border-color .2s ease;
+}
+.btn-ghost:hover { transform: translateY(-2px); border-color: var(--gold); }
+.chip { border: 1px solid var(--line); border-radius: 999px; padding: .45rem 1rem; font-size: .875rem; cursor: pointer; transition: all .2s ease; background: transparent; color: var(--ink); }
+.chip:hover { border-color: var(--magenta); }
+.chip.active { background: var(--magenta); border-color: var(--magenta); color: #fff; }
+input, select, textarea { color: var(--ink); }
