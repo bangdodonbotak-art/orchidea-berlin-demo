@@ -86,7 +86,7 @@ freelancer; $5,750–$16,600 agency — general market ranges, not a quote).
 2. Marquee band hardened into its own clear band: `relative z-10 overflow-hidden py-4 min-h-[3.5rem] flex items-center` — guaranteed height, text vertically centred, nothing can paint over it. The marquee animation itself is untouched (still 30s linear infinite, still pauses on hover, still `aria-hidden`).
 - Kept: uniform 4×2 services grid, luxury background both themes, PayPal ONLY (€20 deposit), EUR prices, carousel fix, DE complete + persisting, Dark persisting, full-color photos, magenta/gold/ivory/charcoal, Cormorant Garamond, DEMO labels, simulated booking, no fake metrics, no new invented names/prices.
 - **Verified v3.8:** `npm run build` exit 0, 10 static pages, First Load JS 120 kB (/). Local smoke: `/`, `/services`, `/team`, `/impressum`, `/datenschutz`, `/sitemap.xml`, `/robots.txt` all HTTP 200.
-- **Shipped v3.8:** GitHub commit PLACEHOLDER (to fill after push), branch main. Sync record updated (20 entries).
+- **Shipped v3.8:** GitHub commit `569de336cd0e67add8a3c5836bc6b57d89b80d1a` (local `7ed233a`, 2 files: app/page.tsx, BLUEPRINT.md), branch main. Sync record updated (20 entries). Verified via raw fetch at the new head: `mt-6 relative z-20` ×1, `min-h-[3.5rem]` ×1; the only `-mt-8` hits are inside the explanatory comments.
 - NOT verified in a real browser: mobile rendering of the unclipped ticker — Dony to re-check on his phone.
 
 ## v3.5 shipped — 18 Nov 2026 ~12:2x WIB
