@@ -90,7 +90,7 @@ freelancer; $5,750–$16,600 agency — general market ranges, not a quote).
 - NOT verified in a real browser: desktop + 375px rendering, no-overflow, no console errors — parent agent to check on the live URL.
 
 ## v3.6 shipped — 18 Nov 2026 ~12:4x WIB (Dony's direct order, phone screenshot of Services & Prices)
-- GitHub commit `TBD` (local `TBD`, files: lib/ServiceCard.tsx [new], lib/data.ts [unchanged], app/globals.css, app/page.tsx, app/services/page.tsx, app/team/page.tsx, BLUEPRINT.md), branch main. Sync record updated (TBD entries).
+- GitHub commit `4315bdf8c97d25915bc23cc3d21de3084a2fb186` (local `10eff13`, 6 files: lib/ServiceCard.tsx [new], app/globals.css, app/page.tsx, app/services/page.tsx, app/team/page.tsx, BLUEPRINT.md), branch main. Sync record updated (15 entries). Verified via get_file_contents pending; live curl verification below.
 - `npm run build` exit 0, 10 static pages. Local smoke: `/`, `/services`, `/team`, `/impressum`, `/datenschutz`, `/sitemap.xml`, `/robots.txt` all HTTP 200.
 - Dony's order (18 Nov 2026 ~12:42 WIB): tidy up Services & Prices — symmetric and proportional positions, all the same size — and use a luxurious elegant background across the whole website. His screenshot showed the problem: 8 service cards as a mismatched masonry — Balayage tall, Cut & Finish a short horizontal row, Signature Facial wide, Aquafacial tall, Shellac short, Gel Pedicure tall — uneven heights, uneven image ratios, prices/footers at different heights; messy on mobile.
 - Fixes:
