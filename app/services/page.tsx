@@ -59,7 +59,7 @@ export default function ServicesPage() {
               </div>
             );
             const body = (
-              <div className="p-5 flex-1 flex flex-col gap-2">
+              <div className="p-4 flex-1 flex flex-col gap-2">
                 <div>
                   <p className="text-xs tracking-[0.2em] uppercase gold">{catLabel(s.cat)} · {s.mins} {t.minUnit}</p>
                   <h2 className="font-display text-2xl font-semibold mt-1">{sName(s)}</h2>
