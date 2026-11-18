@@ -78,6 +78,17 @@ freelancer; $5,750–$16,600 agency — general market ranges, not a quote).
 - Kept: PayPal ONLY, EUR prices, carousel fix, full-color photos, magenta/gold/ivory/charcoal, Cormorant Garamond, DE/EN + Light/Dark, DEMO labels, simulated booking, Admin Demo, legal stubs, cookie banner, prefers-reduced-motion → static, no fake metrics, no new invented names/prices (except the DE name translations above).
 - NOT verified in a real browser: desktop + 375px rendering, no-overflow, no console errors, touch/swipe feel, and the visual confirmation that the card gap is gone + DE survives navigation — parent agent to check on the live URL.
 
+## v3.8 fixes — 18 Nov 2026 ~13:11 WIB (Dony, phone screen recording: "Tulisan berjalan nya ketutupan" — the running text is covered up)
+
+**ROOT CAUSE (read from the code, not guessed):** the marquee ticker (`app/page.tsx:318`, band `overflow-hidden py-3`, text `text-lg sm:text-xl`, ~52px tall) sits directly above the quick-book card section (`app/page.tsx:330`), which carried `-mt-8 relative z-20` — a negative top margin that pulled the white card 32px UP over the bottom of the ticker band. Only ~20px of the ~28px text line stayed visible: the top half of every letter hidden behind the card. That matches Dony's recording frame-for-frame (mobile ~360–400px, homepage: ticker strip directly under the hero, cut off at the seam, quick-book card "Orchidea Mitte / Balayage & Gloss · €130+ / Check free slots →" below it; stats underneath render fine). Desktop audits never flagged it because the overlap exists at every width but is most visible on mobile where the band is shortest. No other negative margin exists in the repo (grep), and the ticker exists ONLY on the homepage — /services and /team have no ticker/hero pattern, nothing to fix there. DE mode and Dark mode use the same band (DE text is longer but the band is identical; `--ivory-2` has a dark value), so the same fix covers both.
+**Fix (app/page.tsx only, 2 lines):**
+1. Quick-book card: `-mt-8` → `mt-6` — plain positive margin, NO element overlaps the ticker any more.
+2. Marquee band hardened into its own clear band: `relative z-10 overflow-hidden py-4 min-h-[3.5rem] flex items-center` — guaranteed height, text vertically centred, nothing can paint over it. The marquee animation itself is untouched (still 30s linear infinite, still pauses on hover, still `aria-hidden`).
+- Kept: uniform 4×2 services grid, luxury background both themes, PayPal ONLY (€20 deposit), EUR prices, carousel fix, DE complete + persisting, Dark persisting, full-color photos, magenta/gold/ivory/charcoal, Cormorant Garamond, DEMO labels, simulated booking, no fake metrics, no new invented names/prices.
+- **Verified v3.8:** `npm run build` exit 0, 10 static pages, First Load JS 120 kB (/). Local smoke: `/`, `/services`, `/team`, `/impressum`, `/datenschutz`, `/sitemap.xml`, `/robots.txt` all HTTP 200.
+- **Shipped v3.8:** GitHub commit PLACEHOLDER (to fill after push), branch main. Sync record updated (20 entries).
+- NOT verified in a real browser: mobile rendering of the unclipped ticker — Dony to re-check on his phone.
+
 ## v3.5 shipped — 18 Nov 2026 ~12:2x WIB
 - GitHub commit `59d00403d1111aa9fa5538875fade2a6de5a4645` (local `b697fcc`, 4 files: lib/data.ts, app/page.tsx, app/services/page.tsx, BLUEPRINT.md), branch main. Sync record updated (13 entries).
 - `npm run build` exit 0, 10 static pages. Local smoke: `/`, `/services`, `/team`, `/impressum`, `/datenschutz`, `/sitemap.xml`, `/robots.txt` all HTTP 200.

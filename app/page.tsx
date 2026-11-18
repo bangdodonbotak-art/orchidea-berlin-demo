@@ -315,8 +315,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Marquee ticker */}
-      <div className="overflow-hidden py-3 border-y" style={{ borderColor: "var(--line)", background: "var(--ivory-2)" }} aria-hidden="true">
+      {/* Marquee ticker — v3.8: its own clear band (relative z-10, flex,
+          min-height, vertical centring). NOTHING may overlap it: the
+          quick-book card below used to carry -mt-8, which pulled it 32px
+          up over this band and hid the top half of the running text on
+          mobile (Dony, 18 Nov 2026, phone recording). */}
+      <div className="relative z-10 overflow-hidden py-4 border-y min-h-[3.5rem] flex items-center" style={{ borderColor: "var(--line)", background: "var(--ivory-2)" }} aria-hidden="true">
         <div className="marquee-track">
           {[0, 1].map((dup) => (
             <span key={dup} className="flex shrink-0 items-center gap-6 pr-6 font-display text-lg sm:text-xl" style={{ color: "var(--ink-soft)" }}>
@@ -326,8 +330,10 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Quick booking bar */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 -mt-8 relative z-20">
+      {/* Quick booking bar — v3.8: plain mt-6, NO negative margin. The old
+          -mt-8 pulled this card 32px up over the marquee band above it and
+          clipped the top half of the running text on mobile. */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 mt-6 relative z-20">
         <div className="card rounded-2xl shadow-xl p-4 sm:p-5 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center pop-in">
           <select className="flex-1 rounded-xl border px-3 py-3 bg-transparent" style={{ borderColor: "var(--line)" }} value={b.location} onChange={(e) => setB({ ...b, location: e.target.value })} aria-label={t.locationLabel}>
             {LOCATIONS.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
