@@ -33,7 +33,7 @@ export const STAFF = [
 ] as const;
 
 export const GALLERY = [
-  { src: "https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=1600&auto=format&fit=crop", alt: "Salon interior with mirrors and chairs" },
+  { src: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1600&auto=format&fit=crop", alt: "Warm spa treatment room with candles" },
   { src: "https://images.unsplash.com/photo-1600948836101-f9ffda59d250?q=80&w=1600&auto=format&fit=crop", alt: "Stylist at work in the salon" },
   { src: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=1600&auto=format&fit=crop", alt: "Spa massage treatment" },
   { src: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=1600&auto=format&fit=crop", alt: "Facial treatment close-up" },
@@ -42,10 +42,21 @@ export const GALLERY = [
 ];
 
 export const HERO_IMAGES = [
-  "https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=2400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=2400&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1600948836101-f9ffda59d250?q=80&w=2400&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=2400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=2400&auto=format&fit=crop",
 ];
+
+// Payment methods for the German market (EHI 2026, 2025 data): PayPal 28.7%,
+// invoice 26.1%, SEPA Direct Debit 14.4%, cards 13.7%, Apple Pay 1.3%.
+// Demo only — simulated, nothing is charged. The real build wires these
+// through Stripe (cards + SEPA + Apple Pay) and PayPal.
+export const PAYMENT_METHODS = [
+  { id: "paypal", name: "PayPal", note: "Germany's most-used online payment" },
+  { id: "sepa", name: "SEPA Direct Debit", note: "Pay from your bank account" },
+  { id: "card", name: "Card · Visa / Mastercard", note: "Via Stripe, secure checkout" },
+  { id: "applepay", name: "Apple Pay", note: "One tap on iPhone" },
+] as const;
 
 // Sample testimonials — illustration only, not real reviews.
 export const TESTIMONIALS = [

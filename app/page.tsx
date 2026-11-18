@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import {
-  GALLERY, HERO_IMAGES, LOCATIONS, SERVICES, STAFF, T, TESTIMONIALS,
+  GALLERY, HERO_IMAGES, LOCATIONS, PAYMENT_METHODS, SERVICES, STAFF, T, TESTIMONIALS,
   fmtUSD, type Lang, type Service,
 } from "../lib/data";
 
@@ -40,6 +40,7 @@ export default function Home() {
   // Booking
   const [step, setStep] = useState(0);
   const [b, setB] = useState<Booking>({ location: "mitte", service: "balayage", staff: "any", day: "Fri 20 Nov", slot: "", name: "", email: "" });
+  const [pay, setPay] = useState<string>("paypal");
   const [confirmed, setConfirmed] = useState<Booking | null>(null);
   const [admin, setAdmin] = useState<Booking[]>([
     { location: "mitte", service: "signature-facial", staff: "mia", day: "Fri 20 Nov", slot: "10:30", name: "Demo Guest 1", email: "demo@example.com" },
@@ -279,8 +280,15 @@ export default function Home() {
               </div>}
               {step === 5 && <div className="card rounded-2xl p-6">
                 <p className="font-display text-2xl font-semibold">Simulated deposit — $20</p>
-                <p className="muted mt-2 text-sm">In the real build this is Stripe (test card 4242 4242 4242 4242 in demo mode). Here nothing is charged — click confirm to see the demo confirmation.</p>
-                <p className="mt-3 text-sm"><b>{service.name}</b> · {LOCATIONS.find((l) => l.id === b.location)?.name} · {b.day} at {b.slot || "—"} · from {fmtUSD(service.from)}</p>
+                <p className="muted mt-2 text-sm">Choose how you would pay in the real build. Nothing is charged here — click confirm to see the demo confirmation.</p>
+                <div className="grid sm:grid-cols-2 gap-3 mt-5">
+                  {PAYMENT_METHODS.map((m) => (
+                    <button key={m.id} className={`card rounded-2xl p-4 text-left ${pay === m.id ? "ring-2" : ""}`} style={pay === m.id ? { ["--tw-ring-color" as string]: "var(--magenta)" } : {}} onClick={() => setPay(m.id)}>
+                      <b className="font-display text-lg">{m.name}</b><br /><span className="muted text-sm">{m.note}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-3 text-sm"><b>{service.name}</b> · {LOCATIONS.find((l) => l.id === b.location)?.name} · {b.day} at {b.slot || "—"} · from {fmtUSD(service.from)} · via {PAYMENT_METHODS.find((m) => m.id === pay)?.name}</p>
               </div>}
               <div className="flex gap-3 mt-6">
                 {step > 0 && <button className="btn-ghost" onClick={() => setStep(step - 1)}>← Back</button>}
@@ -291,7 +299,7 @@ export default function Home() {
           {step === 6 && confirmed && (
             <div className="fadein mt-8 card rounded-2xl p-6" style={{ background: "var(--orchid)" }}>
               <h3 className="font-display text-3xl font-semibold">Demo confirmed — no booking made, no payment taken</h3>
-              <p className="mt-2">{service.name} · {LOCATIONS.find((l) => l.id === confirmed.location)?.name} · {confirmed.day} at {confirmed.slot} · {confirmed.name} · simulated deposit $20</p>
+              <p className="mt-2">{service.name} · {LOCATIONS.find((l) => l.id === confirmed.location)?.name} · {confirmed.day} at {confirmed.slot} · {confirmed.name} · simulated deposit $20 via {PAYMENT_METHODS.find((m) => m.id === pay)?.name}</p>
               <button className="btn-ghost mt-4" onClick={() => { setStep(0); setConfirmed(null); setB({ ...b, slot: "", name: "", email: "" }); }}>Book another (demo)</button>
             </div>
           )}

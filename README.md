@@ -4,7 +4,7 @@ Premium luxury immersive interactive **demo website** for a fictional illustrati
 
 - Stack: Next.js 15 App Router + Tailwind CSS 4, React 19. No database, no backend.
 - Fonts via runtime `<link>` (Cormorant Garamond + Jost) — never `next/font/google`.
-- Booking is **simulated only**: 6 steps, sample slots, simulated $20 deposit, confirmation labelled "DEMO — no booking made, no payment taken". No real payment (Stripe Test Mode only in a real build).
+- Booking is **simulated only**: 6 steps, sample slots, simulated $20 deposit, confirmation labelled "DEMO — no booking made, no payment taken". No real payment. Deposit step offers German-market methods (PayPal, SEPA Direct Debit, Card via Stripe, Apple Pay) — simulated in the demo, wired through Stripe + PayPal in a real build.
 - Admin Demo is read-only with sample data + Reset.
 - Languages: EN/DE toggle. Theme: Light/Dark toggle.
 - Legal pages (Impressum / Datenschutz) are **stubs** — real wording must come from the client / German legal provider before launch.
