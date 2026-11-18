@@ -33,12 +33,12 @@ export const STAFF = [
 ] as const;
 
 export const GALLERY = [
-  { src: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1600&auto=format&fit=crop", alt: "Warm spa treatment room with candles" },
-  { src: "https://images.unsplash.com/photo-1600948836101-f9ffda59d250?q=80&w=1600&auto=format&fit=crop", alt: "Stylist at work in the salon" },
-  { src: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=1600&auto=format&fit=crop", alt: "Spa massage treatment" },
-  { src: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=1600&auto=format&fit=crop", alt: "Facial treatment close-up" },
-  { src: "https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?q=80&w=1600&auto=format&fit=crop", alt: "Manicure detail" },
-  { src: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=1600&auto=format&fit=crop", alt: "Beauty tools and products" },
+  { src: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1600&auto=format&fit=crop", alt: "Warm spa treatment room with candles", cat: "Rooms" },
+  { src: "https://images.unsplash.com/photo-1600948836101-f9ffda59d250?q=80&w=1600&auto=format&fit=crop", alt: "Stylist at work in the salon", cat: "Rooms" },
+  { src: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=1600&auto=format&fit=crop", alt: "Spa massage treatment", cat: "Treatments" },
+  { src: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=1600&auto=format&fit=crop", alt: "Facial treatment close-up", cat: "Treatments" },
+  { src: "https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?q=80&w=1600&auto=format&fit=crop", alt: "Manicure detail", cat: "Details" },
+  { src: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=1600&auto=format&fit=crop", alt: "Beauty tools and products", cat: "Details" },
 ];
 
 export const HERO_IMAGES = [
@@ -47,15 +47,11 @@ export const HERO_IMAGES = [
   "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=2400&auto=format&fit=crop",
 ];
 
-// Payment methods for the German market (EHI 2026, 2025 data): PayPal 28.7%,
-// invoice 26.1%, SEPA Direct Debit 14.4%, cards 13.7%, Apple Pay 1.3%.
-// Demo only — simulated, nothing is charged. The real build wires these
-// through Stripe (cards + SEPA + Apple Pay) and PayPal.
+// Payment: PayPal ONLY — Dony's decision 18 Nov 2026 ("PayPal aja").
+// Demo only — simulated $20 deposit, nothing is charged. The real build
+// wires PayPal Checkout; more methods can be added later if the client asks.
 export const PAYMENT_METHODS = [
-  { id: "paypal", name: "PayPal", note: "Germany's most-used online payment" },
-  { id: "sepa", name: "SEPA Direct Debit", note: "Pay from your bank account" },
-  { id: "card", name: "Card · Visa / Mastercard", note: "Via Stripe, secure checkout" },
-  { id: "applepay", name: "Apple Pay", note: "One tap on iPhone" },
+  { id: "paypal", name: "PayPal", note: "Pay securely with your PayPal account" },
 ] as const;
 
 // Sample testimonials — illustration only, not real reviews.
