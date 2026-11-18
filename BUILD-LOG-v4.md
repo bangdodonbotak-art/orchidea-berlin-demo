@@ -369,3 +369,31 @@ exact versions, gates and drops. No paid signup, no Pro purchase.
   do NOT rely on the accessibility tree — the band is aria-hidden by
   design), date-picker overlap at desktop + 375px, cookie banner in a
   FRESH profile, hero reveal, console errors on the live site.
+
+## v4.1 ship + re-audit — 19 Nov 2026 ~06:21–06:26 WIB — FINAL (desktop)
+- Push retry (Dony: "Coba lg", 06:21 WIB): remote head still b2958b3c, manifest
+  regenerated (58 files), `github push-files` APPROVED by Dony — GitHub commit
+  c9840bda1f8f68527f3003baeae42b40cfab0fb9. Sync record updated (24 entries).
+- Vercel auto-deploy: v4.1 marker live on first check (~06:22 WIB) — in-flow
+  popover CSS (`margin-top:8px;left:0;width:min(320px`) in served CSS. Fresh
+  curl: HTTP 200 on all 8 routes; FAQ marker present.
+- Browser re-audit (06:23–06:26 WIB, desktop 1919×998): ALL CHECKABLE ITEMS
+  PASS, no new defects. Ticker visible + animating DE+EN (verified from
+  screenshots, not the accessibility tree). Date-picker fix confirmed: calendar
+  in-flow, pushes slot chips down, "← Zurück"/"Weiter →" fully visible AND
+  clickable while open (clicked through to step 5); only demo days 20/21/23/24
+  Nov selectable. Hero full at rest DE+EN. Regression clean: FAQ, dark-mode
+  + DE/EN persistence, uniform grid, EUR prices, Deposit Slide renders
+  (not dragged, no booking confirmed). Note: UI counts 6 steps (Location,
+  Service, Specialist, Slot, Details, Deposit) — calendar is step 4 "Slot",
+  Deposit Slide step 6; earlier docs said step 3/5 (0-based). Wizard resets
+  to step 1 on page navigation (summary kept) — pre-existing behaviour.
+- Cookie banner: not shown in the audit browser; localStorage unverified there
+  (no DevTools access). Fresh-profile proof from the v4.1 fix session stands
+  (banner visible on first load, hidden after reject + reload).
+- STILL UNVERIFIED (cloud browser cannot open DevTools or resize): console
+  errors, mobile 375px (overflow, Tabs scroll, Deposit Slide thumb). Dony's
+  phone is the mobile verification path, as since v3.1.
+- v4.1 declared FINAL (desktop) 19 Nov 2026 ~06:26 WIB. Live:
+  https://orchidea-berlin-demo.vercel.app (commit c9840bda). Pitch to
+  @berlin_ceo070 still pending — do NOT send until Dony says OK.
