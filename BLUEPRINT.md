@@ -43,7 +43,12 @@ freelancer; $5,750–$16,600 agency — general market ranges, not a quote).
    Vercel account confirmed: `bangdodonbotak-art` / bangdodonbotak@gmail.com,
    hobby plan.
 
-## v3 dynamic upgrade — 18 Nov 2026 (Dony: "PayPal aja. Tampilan masih statis — lebih kreatif, dinamis, interaktif")
+## v3 shipped — 18 Nov 2026 ~11:0x WIB
+- GitHub commit `4d4a3a9b20a91437dfa5183349ac3f2045e8f7df` (local `df69fad`), 18 files, branch main. Verified via get_file_contents (lib/data.ts shows "PayPal ONLY").
+- `npm run build` exit 0, 8 static pages, First Load JS 114 kB (/).
+- Live Vercel verified via curl: HTTP 200, served HTML contains PayPal (×3), "Play the day", "Surprise me", "Your booking", marquee-track; 0 matches for SEPA/Apple Pay. Vercel auto-deployed from main.
+- Note: motion uses CSS + rAF equivalents (no Lenis/GSAP install) to keep the build dependency-free; AGENTS.md canonical SOP prefers Lenis + GSAP — revisit only if Dony wants heavier scroll choreography.
+- NOT verified in a real browser: desktop + 375px rendering, no-overflow, no console errors, touch/swipe feel — parent agent to check on the live URL.
 
 **Reference research (checked live 18 Nov 2026, per SOP):**
 - 60fps.design — 2,038 interaction shots across ~490 real apps + 64 beat-by-beat storyboards (trigger → start → move → settle); motion is timing data, not decoration. Timing scale: micro feedback 100–150ms, toggles 200–300ms, modals/page changes 300–500ms; animate transform + opacity only (GPU), never width/height/top/left; prefers-reduced-motion collapses to instant state.
